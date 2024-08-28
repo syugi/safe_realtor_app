@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:safe_realtor_app/sign_up.dart';
+import 'package:safe_realtor_app/config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     final response = await http.post(
-      Uri.parse('http://192.168.0.19:8080/api/auth/login'),
+      Uri.parse('$apiBaseUrl/api/auth/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -94,7 +96,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 _loginMessage,
                 style: const TextStyle(color: Colors.red),
               ),
-              TextButton(onPressed: () {}, child: const Text('회원가입')),
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SignUpScreen()));
+                  },
+                  child: const Text('회원가입')),
             ],
           ),
         ),
