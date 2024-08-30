@@ -4,7 +4,7 @@ import 'styles/app_styles.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "assets/config/config.env");
   runApp(const MyApp());
 }
 
