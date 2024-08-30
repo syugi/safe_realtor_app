@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:safe_realtor_app/sign_up.dart';
-import 'package:safe_realtor_app/config.dart';
+import '../../services/auth_service.dart';
+import 'signup_screen.dart';
+import '../../styles/app_styles.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,31 +11,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
+
   final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   String _loginMessage = '';
 
   Future<void> _login() async {
-    final response = await http.post(
-      Uri.parse('$apiBaseUrl/api/auth/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'username': idController.text,
-        'password': passwordController.text,
-      }),
+    final message = await _authService.login(
+      idController.text,
+      passwordController.text,
     );
 
-    if (response.statusCode == 200) {
-      setState(() {
-        _loginMessage = '로그인 성공!';
-      });
-    } else {
-      setState(() {
-        _loginMessage = '로그인 실패: ${response.body}';
-      });
-    }
+    setState(() {
+      _loginMessage = message;
+    });
   }
 
   @override
@@ -63,13 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: AppColors.primaryColor,
                     ),
                   ),
                   Icon(
                     Icons.home,
                     size: 70,
-                    color: Colors.blue,
+                    color: AppColors.primaryColor,
                   ),
                 ],
               ),
@@ -97,13 +86,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Colors.red),
               ),
               TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SignUpScreen()));
-                  },
-                  child: const Text('회원가입')),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SignUpScreen()),
+                  );
+                },
+                child: const Text('회원가입'),
+              ),
             ],
           ),
         ),
