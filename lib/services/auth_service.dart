@@ -1,57 +1,49 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../config.dart';
+import 'api_service.dart';
+import '../utils/http_status.dart';
 
 class AuthService {
+  final ApiService _apiService = ApiService();
+
   Future<bool> sendCode(String phoneNumber) async {
-    final response = await http.post(
-      Uri.parse('${Config.apiBaseUrl}/api/auth/sendVerificationCode'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{'phoneNumber': phoneNumber}),
+    final response = await _apiService.postRequest(
+      '/api/auth/sendVerificationCode',
+      {'phoneNumber': phoneNumber},
     );
 
-    return response.statusCode == 200;
+    return response.statusCode == HttpStatus.ok;
   }
 
   Future<bool> verifyCode(String phoneNumber, String code) async {
-    final response = await http.post(
-      Uri.parse('${Config.apiBaseUrl}/api/auth/verifyCode'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
+    final response = await _apiService.postRequest(
+      '/api/auth/verifyCode',
+      {
         'phoneNumber': phoneNumber,
         'verificationCode': code,
-      }),
+      },
     );
 
-    return response.statusCode == 200;
+    return response.statusCode == HttpStatus.ok;
   }
 
   Future<bool> checkUsernameAvailability(String username) async {
-    final response = await http.get(
-      Uri.parse('${Config.apiBaseUrl}/api/auth/checkUsername')
-          .replace(queryParameters: {'username': username}),
+    final response = await _apiService.getRequest(
+      '/api/auth/checkUsername',
+      {'username': username},
     );
 
-    return response.statusCode == 200;
+    return response.statusCode == HttpStatus.ok;
   }
 
   Future<String> login(String username, String password) async {
-    final response = await http.post(
-      Uri.parse('${Config.apiBaseUrl}/api/auth/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
+    final response = await _apiService.postRequest(
+      '/api/auth/login',
+      {
         'username': username,
         'password': password,
-      }),
+      },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == HttpStatus.ok) {
       return '로그인 성공!';
     } else {
       return '로그인 실패: ${response.body}';
