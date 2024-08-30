@@ -5,7 +5,7 @@ import '../config.dart';
 class AuthService {
   Future<bool> sendCode(String phoneNumber) async {
     final response = await http.post(
-      Uri.parse('$apiBaseUrl/api/auth/sendVerificationCode'),
+      Uri.parse('${Config.apiBaseUrl}/api/auth/sendVerificationCode'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -17,7 +17,7 @@ class AuthService {
 
   Future<bool> verifyCode(String phoneNumber, String code) async {
     final response = await http.post(
-      Uri.parse('$apiBaseUrl/api/auth/verifyCode'),
+      Uri.parse('${Config.apiBaseUrl}/api/auth/verifyCode'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -32,7 +32,7 @@ class AuthService {
 
   Future<bool> checkUsernameAvailability(String username) async {
     final response = await http.get(
-      Uri.parse('$apiBaseUrl/api/auth/checkUsername')
+      Uri.parse('${Config.apiBaseUrl}/api/auth/checkUsername')
           .replace(queryParameters: {'username': username}),
     );
 
@@ -41,7 +41,7 @@ class AuthService {
 
   Future<String> login(String username, String password) async {
     final response = await http.post(
-      Uri.parse('$apiBaseUrl/api/auth/login'),
+      Uri.parse('${Config.apiBaseUrl}/api/auth/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

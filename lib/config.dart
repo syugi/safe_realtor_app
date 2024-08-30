@@ -1,1 +1,6 @@
-const String apiBaseUrl = 'http://192.168.0.19:8080';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class Config {
+  static final String apiBaseUrl =
+      dotenv.env['API_URL'] ?? 'http://default-url.com';
+}
