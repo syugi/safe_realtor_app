@@ -100,8 +100,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: _buildSignUpForm(),
+        child: isCodeVerified ? _buildSignUpForm() : _buildPhoneAuthForm(),
       ),
+    );
+  }
+
+  Widget _buildPhoneAuthForm() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TextField(
+          controller: phoneController,
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(
+            labelText: '핸드폰 번호',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: _sendCode,
+          child: Text(isCodeSent ? '재발송' : '인증번호 발송'),
+        ),
+        if (isCodeSent) ...[
+          const SizedBox(height: 20),
+          TextField(
+            controller: codeController,
+            decoration: const InputDecoration(
+              labelText: '인증번호 입력',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _verifyCode,
+            child: const Text('인증번호 확인'),
+          ),
+        ],
+      ],
     );
   }
 
