@@ -49,6 +49,4 @@ class AuthService {
       return '로그인 실패: ${response.body}';
     }
   }
-
-  Future<String> signup(String username, String password, String phon)
 }
