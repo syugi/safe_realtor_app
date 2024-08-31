@@ -18,23 +18,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController codeController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController userIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
-  final FocusNode usernameFocusNode = FocusNode();
+  final FocusNode userIdFocusNode = FocusNode();
 
   bool _isCodeSent = false;
   bool _isTimerActive = false;
   bool _isCodeVerified = false;
-  bool _isUsernameAvailable = false;
+  bool _isUserIdAvailable = false;
   bool _isPasswordMatched = false;
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
   bool _isSubmitting = false;
   int _timerCountdown = 60 * 3;
   Timer? _timer;
-  String _usernameCheckMessage = '';
+  String _userIdCheckMessage = '';
   String _registrationMessage = '';
   String _verificationMessage = '';
 
@@ -49,10 +49,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void dispose() {
     phoneNumberController.dispose();
     codeController.dispose();
-    usernameController.dispose();
+    userIdController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
-    usernameFocusNode.dispose();
+    userIdFocusNode.dispose();
     _timer?.cancel();
     super.dispose();
   }
@@ -104,7 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {
       if (response.statusCode == HttpStatus.ok) {
         _isCodeVerified = true;
-        FocusScope.of(context).requestFocus(usernameFocusNode);
+        FocusScope.of(context).requestFocus(userIdFocusNode);
       } else {
         _verificationMessage = '인증 실패: ${response.body}';
       }
@@ -120,12 +120,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  Future<void> _checkUsernameAvailability() async {
+  Future<void> _checkUserIdAvailability() async {
     final response =
-        await _authService.checkUsernameAvailability(usernameController.text);
+        await _authService.checkUserIdAvailability(userIdController.text);
     setState(() {
-      _isUsernameAvailable = response.statusCode == HttpStatus.ok;
-      _usernameCheckMessage = response.body;
+      _isUserIdAvailable = response.statusCode == HttpStatus.ok;
+      _userIdCheckMessage = response.body;
     });
   }
 
@@ -135,14 +135,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     final response = await _authService.register(
-      usernameController.text,
+      userIdController.text,
       passwordController.text,
       phoneNumberController.text, // 인증된 핸드폰 번호 사용
     );
 
     if (response.statusCode == HttpStatus.created) {
       final loginResponse = await _authService.login(
-        usernameController.text,
+        userIdController.text,
         passwordController.text,
       );
 
@@ -241,8 +241,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TextField(
-          controller: usernameController,
-          focusNode: usernameFocusNode,
+          controller: userIdController,
+          focusNode: userIdFocusNode,
           decoration: const InputDecoration(
             labelText: '아이디',
             border: OutlineInputBorder(),
@@ -250,17 +250,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: _checkUsernameAvailability,
+          onPressed: _checkUserIdAvailability,
           child: const Text('아이디 중복 확인'),
         ),
-        if (_usernameCheckMessage.isNotEmpty)
+        if (_userIdCheckMessage.isNotEmpty)
           Text(
-            _usernameCheckMessage,
+            _userIdCheckMessage,
             style: TextStyle(
-              color: _isUsernameAvailable ? Colors.green : Colors.red,
+              color: _isUserIdAvailable ? Colors.green : Colors.red,
             ),
           ),
-        if (_isUsernameAvailable) ...[
+        if (_isUserIdAvailable) ...[
           const SizedBox(height: 20),
           PasswordField(
             controller: passwordController,
@@ -291,7 +291,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed:
-                _isSubmitting || !_isUsernameAvailable || !_isPasswordMatched
+                _isSubmitting || !_isUserIdAvailable || !_isPasswordMatched
                     ? null
                     : _register,
             child: const Text('회원가입'),

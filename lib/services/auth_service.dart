@@ -24,20 +24,20 @@ class AuthService {
     return response;
   }
 
-  Future<http.Response> checkUsernameAvailability(String username) async {
+  Future<http.Response> checkUserIdAvailability(String userId) async {
     final response = await _apiService.getRequest(
-      '/api/auth/checkUsername',
-      {'username': username},
+      '/api/auth/checkUserId',
+      {'userId': userId},
     );
 
     return response;
   }
 
-  Future<http.Response> login(String username, String password) async {
+  Future<http.Response> login(String userId, String password) async {
     final response = await _apiService.postRequest(
       '/api/auth/login',
       {
-        'username': username,
+        'userId': userId,
         'password': password,
       },
     );
@@ -46,9 +46,9 @@ class AuthService {
   }
 
   Future<http.Response> register(
-      String username, String password, String phoneNumber) async {
+      String userId, String password, String phoneNumber) async {
     final response = await _apiService.postRequest('/api/auth/register', {
-      'username': username,
+      'userId': userId,
       'password': password,
       'phoneNumber': phoneNumber,
     });
