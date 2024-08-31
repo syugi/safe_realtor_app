@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 import 'api_service.dart';
-import 'package:safe_realtor_app/utils/http_status.dart';
 
 class AuthService {
   final ApiService _apiService = ApiService();
@@ -34,7 +33,7 @@ class AuthService {
     return response;
   }
 
-  Future<String> login(String username, String password) async {
+  Future<http.Response> login(String username, String password) async {
     final response = await _apiService.postRequest(
       '/api/auth/login',
       {
@@ -43,10 +42,17 @@ class AuthService {
       },
     );
 
-    if (response.statusCode == HttpStatus.ok) {
-      return '로그인 성공!';
-    } else {
-      return '로그인 실패: ${response.body}';
-    }
+    return response;
+  }
+
+  Future<http.Response> register(
+      String username, String password, String phoneNumber) async {
+    final response = await _apiService.postRequest('/api/auth/register', {
+      'username': username,
+      'password': password,
+      'phoneNumber': phoneNumber,
+    });
+
+    return response;
   }
 }

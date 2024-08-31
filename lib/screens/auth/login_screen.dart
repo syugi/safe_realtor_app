@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import 'sign_up_screen.dart';
 import '../../styles/app_styles.dart';
+import 'package:safe_realtor_app/utils/http_status.dart';
+import '../home.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,14 +20,21 @@ class _LoginScreenState extends State<LoginScreen> {
   String _loginMessage = '';
 
   Future<void> _login() async {
-    final message = await _authService.login(
+    final response = await _authService.login(
       idController.text,
       passwordController.text,
     );
 
-    setState(() {
-      _loginMessage = message;
-    });
+    if (response.statusCode == HttpStatus.ok) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      setState(() {
+        _loginMessage = '로그인 실패: ${response.body}';
+      });
+    }
   }
 
   @override
