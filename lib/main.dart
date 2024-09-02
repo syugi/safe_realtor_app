@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import './screens/auth/login_screen.dart';
+// import './screens/auth/login_screen.dart';
+import './screens/property/property_list_screen.dart';
 import 'styles/app_styles.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginScreen(),
+      home: const PropertyListScreen(),
     );
   }
 }
