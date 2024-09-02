@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'property/property_reg_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -7,10 +8,20 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('홈'),
       ),
-      body: const Center(
-        child: Text('Welcome to the Home Screen!'),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            // 버튼을 누르면 PropertyRegScreen으로 이동
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const PropertyRegScreen()),
+            );
+          },
+          child: const Text('매물 등록'),
+        ),
       ),
     );
   }

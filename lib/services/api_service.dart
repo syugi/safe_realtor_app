@@ -5,7 +5,7 @@ import '../config.dart';
 class ApiService {
   // 공통 HTTP POST 요청 처리 메서드
   Future<http.Response> postRequest(
-      String endpoint, Map<String, String> body) async {
+      String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${Config.apiBaseUrl}$endpoint');
     final response = await http.post(
       url,

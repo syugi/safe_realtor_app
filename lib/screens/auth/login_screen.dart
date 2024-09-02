@@ -4,6 +4,7 @@ import 'sign_up_screen.dart';
 import '../../styles/app_styles.dart';
 import 'package:safe_realtor_app/utils/http_status.dart';
 import '../home.dart';
+import 'package:safe_realtor_app/utils/http_utils.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,8 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
+      final message = extractMessageFromResponse(response);
       setState(() {
-        _loginMessage = '로그인 실패: ${response.body}';
+        _loginMessage = message;
       });
     }
   }
