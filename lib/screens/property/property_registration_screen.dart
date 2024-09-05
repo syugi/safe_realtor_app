@@ -3,14 +3,16 @@ import 'package:safe_realtor_app/services/property_service.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
 import 'package:safe_realtor_app/utils/http_status.dart';
 
-class PropertyRegScreen extends StatefulWidget {
-  const PropertyRegScreen({super.key});
+class PropertyRegistrationScreen extends StatefulWidget {
+  const PropertyRegistrationScreen({super.key});
 
   @override
-  State<PropertyRegScreen> createState() => _PropertyRegScreenState();
+  State<PropertyRegistrationScreen> createState() =>
+      _PropertyRegistrationScreenState();
 }
 
-class _PropertyRegScreenState extends State<PropertyRegScreen> {
+class _PropertyRegistrationScreenState
+    extends State<PropertyRegistrationScreen> {
   final PropertyService _propertyService = PropertyService();
 
   final Map<String, TextEditingController> _controllers = {

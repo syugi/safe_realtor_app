@@ -18,34 +18,39 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   @override
   void initState() {
     super.initState();
-    _propertyList = _propertyService.fetchProperties(); // 매물 목록 조회
+    _loadProperties(); // 매물 목록 조회
+  }
+
+  // 매물 목록을 다시 로드하는 함수
+  Future<void> _loadProperties() async {
+    setState(() {
+      _propertyList = _propertyService.fetchProperties();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('매물 목록'),
-      ),
-      body: FutureBuilder<List<Property>>(
-        future: _propertyList,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('오류 발생: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('조회된 매물이 없습니다.'));
-          }
+    return FutureBuilder<List<Property>>(
+      future: _propertyList,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('오류 발생: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('조회된 매물이 없습니다.'));
+        }
 
-          final properties = snapshot.data!;
+        final properties = snapshot.data!;
 
-          return ListView.builder(
+        return RefreshIndicator(
+          onRefresh: _loadProperties, // 새로고침 시 호출
+          child: ListView.builder(
             itemCount: properties.length,
             itemBuilder: (context, index) {
               final property = properties[index];
               return ListTile(
-                title: Text('${property.type} - ${property.price}'),
+                title: Text('${property.type} - ${property.price}원'),
                 subtitle: Text(property.description),
                 onTap: () {
                   Navigator.push(
@@ -58,9 +63,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                 },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:safe_realtor_app/constants/role_constants.dart';
 import 'package:safe_realtor_app/screens/auth/login_screen.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/common/password_field.dart';
 import 'package:safe_realtor_app/utils/http_status.dart';
 import '../home.dart';
+import 'dart:convert';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -147,9 +149,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (loginResponse.statusCode == HttpStatus.ok) {
+        // JSON 응답에서 role 값을 추출
+        final decodedResponseBody = utf8.decode(loginResponse.bodyBytes);
+        final responseBody = jsonDecode(decodedResponseBody);
+        final int role = responseBody['role']; // role 값 추출
+
+        // role 값을 HomeScreen으로 전달
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen(userRole: role)),
           (Route<dynamic> route) => false, // 이전 라우트 제거
         );
       } else {

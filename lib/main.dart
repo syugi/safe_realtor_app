@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_realtor_app/screens/home.dart';
 // import './screens/auth/login_screen.dart';
 import './screens/property/property_list_screen.dart';
 import 'styles/app_styles.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const PropertyListScreen(),
+      home: const HomeScreen(userRole: 1),
     );
   }
 }
