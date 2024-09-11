@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:safe_realtor_app/models/Property.dart';
 import 'api_service.dart';
@@ -7,9 +9,10 @@ import 'dart:convert';
 class PropertyService {
   final ApiService _apiService = ApiService();
 
-  Future<http.Response> sendPropertyData(Map<String, dynamic> property) async {
-    final response =
-        await _apiService.postRequest('/api/properties/register', property);
+  Future<http.Response> sendPropertyData(
+      Map<String, dynamic> property, List<File> imageFiles) async {
+    final response = await _apiService.postPropertyMultipartRequest(
+        '/api/properties/register', property, imageFiles);
     return response;
   }
 

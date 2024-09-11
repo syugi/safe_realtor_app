@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:safe_realtor_app/services/property_service.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
 import 'package:safe_realtor_app/utils/http_status.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class PropertyRegistrationScreen extends StatefulWidget {
   const PropertyRegistrationScreen({super.key});
@@ -14,6 +16,9 @@ class PropertyRegistrationScreen extends StatefulWidget {
 class _PropertyRegistrationScreenState
     extends State<PropertyRegistrationScreen> {
   final PropertyService _propertyService = PropertyService();
+  final ImagePicker _picker = ImagePicker(); // 이미지 선택을 위한 ImagePicker
+
+  List<File> _images = []; // 여러 개의 선택한 이미지 파일을 저장할 리스트
 
   final Map<String, TextEditingController> _controllers = {
     'propertyNumber': TextEditingController(),
@@ -41,9 +46,18 @@ class _PropertyRegistrationScreenState
   bool parkingAvailable = false;
   bool elevatorAvailable = false;
 
+  // 이미지 선택 함수
+  Future<void> _pickImages() async {
+    final pickedFiles = await _picker.pickMultiImage();
+
+    setState(() {
+      _images = pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
+    });
+  }
+
   Future<void> _registerProperty() async {
     final property = _buildPropertyData();
-    final response = await _propertyService.sendPropertyData(property);
+    final response = await _propertyService.sendPropertyData(property, _images);
 
     if (response.statusCode == HttpStatus.created) {
       _showMessage('매물 등록 성공!');
@@ -124,6 +138,33 @@ class _PropertyRegistrationScreenState
             _buildTextField('propertyNumber', '매물번호'),
             _buildTextField('price', '가격', keyboardType: TextInputType.number),
             _buildTextField('description', '소개'),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: _pickImages, // 여러 이미지 선택 버튼
+              child: const Text('이미지 선택 (여러 장)'),
+            ),
+            const SizedBox(height: 16.0),
+            // 선택한 이미지 미리보기
+            _images.isNotEmpty
+                ? SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _images.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Image.file(
+                            _images[index],
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : const Text('이미지가 선택되지 않았습니다.'),
             DropdownButtonFormField<String>(
               value: selectedType,
               decoration: const InputDecoration(

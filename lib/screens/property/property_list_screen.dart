@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/property_service.dart';
 import 'property_detail_screen.dart';
 import 'package:safe_realtor_app/models/Property.dart';
+import 'dart:async';
+import 'package:safe_realtor_app/config.dart';
 
 class PropertyListScreen extends StatefulWidget {
   const PropertyListScreen({super.key});
@@ -50,7 +52,20 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             itemBuilder: (context, index) {
               final property = properties[index];
               return ListTile(
-                title: Text('${property.type} - ${property.price}원'),
+                leading: property.imageUrls.isNotEmpty
+                    ? Image.network(
+                        '${Config.apiBaseUrl}${property.imageUrls.first}', // 첫 번째 이미지를 썸네일로 표시
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/default_thumbnail.png', // 로컬 기본 썸네일 이미지
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                title: Text('${property.type} - ${property.price}'),
                 subtitle: Text(property.description),
                 onTap: () {
                   Navigator.push(
