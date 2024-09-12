@@ -157,7 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // role 값을 HomeScreen으로 전달
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(userRole: role)),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
           (Route<dynamic> route) => false, // 이전 라우트 제거
         );
       } else {

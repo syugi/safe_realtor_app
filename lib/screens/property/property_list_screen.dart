@@ -6,7 +6,8 @@ import 'dart:async';
 import 'package:safe_realtor_app/config.dart';
 
 class PropertyListScreen extends StatefulWidget {
-  const PropertyListScreen({super.key});
+  final String userId;
+  const PropertyListScreen({super.key, required this.userId});
 
   @override
   State<PropertyListScreen> createState() => _PropertyListScreenState();
@@ -26,7 +27,19 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   // 매물 목록을 다시 로드하는 함수
   Future<void> _loadProperties() async {
     setState(() {
-      _propertyList = _propertyService.fetchProperties();
+      _propertyList = _propertyService.fetchProperties(widget.userId);
+    });
+  }
+
+  void _toggleFavorite(Property property) {
+    setState(() {
+      if (property.isFavorite ?? false) {
+        property.isFavorite = false; // 찜 취소
+        _propertyService.removeFavorite(widget.userId, property.id);
+      } else {
+        property.isFavorite = true; // 찜 추가
+        _propertyService.addFavorite(widget.userId, property.id);
+      }
     });
   }
 
@@ -51,6 +64,8 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             itemCount: properties.length,
             itemBuilder: (context, index) {
               final property = properties[index];
+              final isFavorite = property.isFavorite ?? false; // 서버에서 받은 찜 여부
+
               return ListTile(
                 leading: property.imageUrls.isNotEmpty
                     ? Image.network(
@@ -67,6 +82,12 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                       ),
                 title: Text('${property.type} - ${property.price}'),
                 subtitle: Text(property.description),
+                trailing: IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : null,
+                    ),
+                    onPressed: () => _toggleFavorite(property)),
                 onTap: () {
                   Navigator.push(
                     context,

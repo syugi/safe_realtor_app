@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(userRole: 1),
+      home: const HomeScreen(),
     );
   }
 }

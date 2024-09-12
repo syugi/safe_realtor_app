@@ -6,6 +6,7 @@ import 'package:safe_realtor_app/utils/http_status.dart';
 import '../home.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,12 +32,19 @@ class _LoginScreenState extends State<LoginScreen> {
       // JSON 응답에서 role 값을 추출
       final decodedResponseBody = utf8.decode(response.bodyBytes);
       final responseBody = jsonDecode(decodedResponseBody);
-      final int role = responseBody['role']; // role 값 추출
+      final userId = responseBody['userId']; // 로그인용 문자열 ID
+      final userDbId = responseBody['id']; // DB의 숫자형 PK (userDbId로 명명)
+      final role = responseBody['role'];
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', userId); // 로그인용 userId 저장
+      await prefs.setInt('userDbId', userDbId); // DB PK 저장
+      await prefs.setInt('role', role); // role 저장
 
       // role 값을 HomeScreen으로 전달
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen(userRole: role)),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
       final message = extractMessageFromResponse(response);

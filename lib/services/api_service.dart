@@ -11,9 +11,7 @@ class ApiService {
     final url = Uri.parse('${Config.apiBaseUrl}$endpoint');
     final response = await http.post(
       url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      headers: _headers(),
       body: jsonEncode(body),
     );
 
@@ -25,12 +23,25 @@ class ApiService {
       String endpoint, Map<String, String> queryParams) async {
     final url = Uri.parse('${Config.apiBaseUrl}$endpoint')
         .replace(queryParameters: queryParams);
-    final response = await http.get(url);
+    final response = await http.get(url, headers: _headers());
 
     return response;
   }
 
-  // 공통 HTTP POST 요청 처리 메서드 (multipart/form-data 전송)
+  // 공통 HTTP DELETE 요청 처리 메서드
+  Future<http.Response> deleteRequest(
+      String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse('${Config.apiBaseUrl}$endpoint');
+    final response = await http.delete(
+      url,
+      headers: _headers(),
+      body: jsonEncode(body),
+    );
+
+    return response;
+  }
+
+  // [매물 사진] HTTP POST 요청 처리 메서드 (multipart/form-data 전송)
   Future<http.Response> postPropertyMultipartRequest(
       String endpoint, Map<String, dynamic> fields, List<File> files) async {
     final url = Uri.parse('${Config.apiBaseUrl}$endpoint');
@@ -59,5 +70,12 @@ class ApiService {
 
     // 응답을 http.Response 형태로 변환하여 반환
     return await http.Response.fromStream(response);
+  }
+
+  // 공통 요청 헤더 설정
+  Map<String, String> _headers() {
+    return {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
   }
 }
