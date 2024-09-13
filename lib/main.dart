@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:safe_realtor_app/screens/home.dart';
-// import './screens/auth/login_screen.dart';
-import './screens/property/property_list_screen.dart';
 import 'styles/app_styles.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

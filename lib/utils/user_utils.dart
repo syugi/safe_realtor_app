@@ -15,3 +15,12 @@ Future<int> getUserRole() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getInt('role') ?? UserRoles.user;
 }
+
+// 로그인 여부를 체크하는 공통 함수
+Future<bool> isLoggedIn() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? userId = prefs.getString('userId');
+
+  // userId가 있으면 로그인 상태, 없으면 로그아웃 상태
+  return userId != null && userId.isNotEmpty;
+}

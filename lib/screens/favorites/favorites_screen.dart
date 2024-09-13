@@ -108,8 +108,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 itemCount: favoriteProperties.length,
                 itemBuilder: (context, index) {
                   final property = favoriteProperties[index];
-                  final isFavorite =
-                      property.isFavorite ?? false; // 서버에서 받은 찜 여부
+                  final isFavorite = property.isFavorite; // 서버에서 받은 찜 여부
 
                   return ListTile(
                     leading: property.imageUrls.isNotEmpty

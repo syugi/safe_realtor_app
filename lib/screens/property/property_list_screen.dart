@@ -8,6 +8,8 @@ import 'dart:async';
 import 'package:safe_realtor_app/config.dart';
 import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:logger/logger.dart';
+import 'package:safe_realtor_app/utils/user_utils.dart';
+import 'package:safe_realtor_app/mixins/login_helper.dart';
 
 class PropertyListScreen extends StatefulWidget {
   final String userId;
@@ -17,7 +19,8 @@ class PropertyListScreen extends StatefulWidget {
   State<PropertyListScreen> createState() => _PropertyListScreenState();
 }
 
-class _PropertyListScreenState extends State<PropertyListScreen> {
+class _PropertyListScreenState extends State<PropertyListScreen>
+    with LoginHelper {
   final PropertyService _propertyService = PropertyService();
   final Logger _logger = Logger();
 
@@ -54,6 +57,17 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       });
       _logger.e(_errorMessage, error: e);
       return [];
+    }
+  }
+
+// 로그인 여부 체크 후 찜 기능 실행
+  void _handleFavorite(Property property) async {
+    bool loggedIn = await isLoggedIn(); // LoginHelper 사용하여 로그인 여부 확인
+
+    if (loggedIn) {
+      _toggleFavorite(property);
+    } else {
+      showLoginBottomSheet(context); // 로그인 모달 띄우기
     }
   }
 
@@ -104,7 +118,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             itemCount: properties.length,
             itemBuilder: (context, index) {
               final property = properties[index];
-              final isFavorite = property.isFavorite ?? false; // 서버에서 받은 찜 여부
+              final isFavorite = property.isFavorite; // 서버에서 받은 찜 여부
 
               return ListTile(
                 leading: property.imageUrls.isNotEmpty
@@ -127,7 +141,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                       isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: isFavorite ? Colors.red : null,
                     ),
-                    onPressed: () => _toggleFavorite(property)),
+                    onPressed: () => _handleFavorite(property)),
                 onTap: () {
                   Navigator.push(
                     context,

@@ -5,6 +5,7 @@ import 'package:safe_realtor_app/constants/role_constants.dart';
 import 'package:safe_realtor_app/screens/favorites/favorites_screen.dart';
 import 'package:safe_realtor_app/screens/more/more_screen.dart';
 import 'package:safe_realtor_app/utils/user_utils.dart';
+import 'package:safe_realtor_app/mixins/login_helper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with LoginHelper {
   int _selectedIndex = 0;
   int? _userRole;
   String? _userId;
@@ -27,11 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // SharedPreferences에서 userId와 role을 불러오는 함수
   Future<void> _loadUserData() async {
-    //TEST
-    int userRole = UserRoles.user;
-    String userId = "test";
-    // int userRole = await getUserRole();
-    // String userId = await getUserId();
+    int userRole = await getUserRole();
+    String userId = await getUserId();
 
     setState(() {
       _userRole = userRole;
@@ -47,16 +45,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // 하단 탭 클릭시 호출되는 함수
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onItemTapped(int index) async {
+    if (index == 1) {
+      // 찜목록 클릭 시 로그인 여부 확인
+      _handleLoginRequired(() {
+        setState(() {
+          _selectedIndex = index;
+        });
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _pages.isNotEmpty ? _pages[_selectedIndex] : const SizedBox(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
@@ -68,6 +75,17 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  // 로그인 여부를 확인하여 로그인하지 않았다면 로그인 창 모달을 띄우는 함수
+  void _handleLoginRequired(VoidCallback onLoggedIn) async {
+    bool loggedIn = await isLoggedIn();
+
+    if (loggedIn) {
+      onLoggedIn();
+    } else {
+      showLoginBottomSheet(context);
+    }
   }
 
   Widget _buildHomeScreen() {
@@ -93,22 +111,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   _userRole == UserRoles.admin)
                 ElevatedButton(
                   onPressed: () {
-                    // 중개사일 경우 매물 등록 페이지로 이동
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const PropertyRegistrationScreen(),
-                      ),
-                    );
+                    _handleLoginRequired(() {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const PropertyRegistrationScreen()),
+                      );
+                    });
                   },
                   child: const Text('매물 등록'),
                 )
               else if (_userRole == UserRoles.user)
                 ElevatedButton(
                   onPressed: () {
-                    // 일반 사용자일 경우 문의하기 다이얼로그
-                    _showInquiryDialog(context);
+                    _handleLoginRequired(() {
+                      _showInquiryDialog(context);
+                    });
                   },
                   child: const Text('바로 문의하기'),
                 ),
