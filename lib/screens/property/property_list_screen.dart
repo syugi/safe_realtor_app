@@ -7,6 +7,7 @@ import 'package:safe_realtor_app/models/Property.dart';
 import 'dart:async';
 import 'package:safe_realtor_app/config.dart';
 import 'package:safe_realtor_app/utils/message_utils.dart';
+import 'package:logger/logger.dart';
 
 class PropertyListScreen extends StatefulWidget {
   final String userId;
@@ -18,6 +19,7 @@ class PropertyListScreen extends StatefulWidget {
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
   final PropertyService _propertyService = PropertyService();
+  final Logger _logger = Logger();
 
   late Future<List<Property>> _propertyList;
   String? _errorMessage;
@@ -31,6 +33,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   // 매물 목록을 다시 로드하는 함수
   Future<void> _loadProperties() async {
     setState(() {
+      _errorMessage = null; // 오류 메시지 초기화
       _propertyList = _fetchPropertiesWithHandling();
     });
   }
@@ -39,15 +42,17 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   Future<List<Property>> _fetchPropertiesWithHandling() async {
     try {
       return await _propertyService.fetchProperties(widget.userId);
-    } on SocketException catch (_) {
+    } on SocketException catch (e) {
       setState(() {
         _errorMessage = '인터넷 연결이 없습니다. 연결을 확인해주세요.';
       });
+      _logger.e(_errorMessage, error: e);
       return [];
     } catch (e) {
       setState(() {
         _errorMessage = '매물 목록을 불러오는 중 오류가 발생했습니다.';
       });
+      _logger.e(_errorMessage, error: e);
       return [];
     }
   }
@@ -77,7 +82,16 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (_errorMessage != null) {
-          return Center(child: Text(_errorMessage!));
+          return Center(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_errorMessage!),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: _loadProperties, child: const Text('새로고침')),
+            ],
+          ));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('조회된 매물이 없습니다.'));
         }
