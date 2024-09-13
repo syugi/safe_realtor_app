@@ -6,6 +6,7 @@ import 'package:safe_realtor_app/screens/favorites/favorites_screen.dart';
 import 'package:safe_realtor_app/screens/more/more_screen.dart';
 import 'package:safe_realtor_app/utils/user_utils.dart';
 import 'package:safe_realtor_app/mixins/login_helper.dart';
+import 'package:safe_realtor_app/screens/inquiry/inquiry_form_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -126,7 +127,11 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
                 ElevatedButton(
                   onPressed: () {
                     _handleLoginRequired(() {
-                      _showInquiryDialog(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const InquiryFormScreen()),
+                      );
                     });
                   },
                   child: const Text('바로 문의하기'),
@@ -140,36 +145,6 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
           child: PropertyListScreen(userId: _userId!), // 매물 목록 화면 호출
         ),
       ],
-    );
-  }
-
-  // 일반 사용자용 문의하기 다이얼로그 함수
-  void _showInquiryDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('문의하기'),
-          content: const Text('중개사에게 문의하시겠습니까?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 닫기
-              },
-              child: const Text('취소'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('문의가 완료되었습니다.')),
-                );
-              },
-              child: const Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

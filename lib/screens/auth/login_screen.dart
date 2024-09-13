@@ -35,11 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final userId = responseBody['userId']; // 로그인용 문자열 ID
       final userDbId = responseBody['id']; // DB의 숫자형 PK (userDbId로 명명)
       final role = responseBody['role'];
+      final phoneNumber = responseBody['phoneNumber'];
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('userId', userId); // 로그인용 userId 저장
       await prefs.setInt('userDbId', userDbId); // DB PK 저장
       await prefs.setInt('role', role); // role 저장
+      await prefs.setString('phoneNumber', phoneNumber);
 
       // role 값을 HomeScreen으로 전달
       Navigator.pushReplacement(

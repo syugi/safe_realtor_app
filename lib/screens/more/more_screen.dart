@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:safe_realtor_app/screens/home.dart';
 
 class MoreScreen extends StatelessWidget {
   final String userId;
@@ -80,8 +82,9 @@ class MoreScreen extends StatelessWidget {
     );
   }
 
-  // 로그아웃 처리 함수
-  void _logout(BuildContext context) {
+// 로그아웃 처리 함수
+  Future<void> _logout(BuildContext context) async {
+    // 로그아웃 확인 다이얼로그
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -96,11 +99,19 @@ class MoreScreen extends StatelessWidget {
               child: const Text('취소'),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // 로그아웃 처리 로직
-                Navigator.pushReplacementNamed(
-                    context, '/login'); // 로그인 화면으로 이동
+              onPressed: () async {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+
+                // 로그아웃 처리 (SharedPreferences 초기화)
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.clear(); // 모든 저장된 정보 삭제
+
+                // 로그인 화면으로 이동
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  (Route<dynamic> route) => false, // 이전 모든 라우트 제거
+                );
               },
               child: const Text('확인'),
             ),

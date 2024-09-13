@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import '../../services/property_service.dart';
 import 'property_detail_screen.dart';
 import 'package:safe_realtor_app/models/Property.dart';
 import 'dart:async';
+import 'dart:io';
 import 'package:safe_realtor_app/config.dart';
 import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:logger/logger.dart';
