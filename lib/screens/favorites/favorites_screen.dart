@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../services/property_service.dart';
-import '../../models/Property.dart';
-import '../property/property_detail_screen.dart';
+import 'package:safe_realtor_app/screens/property/property_detail_screen.dart';
+import 'package:safe_realtor_app/models/Property.dart';
+import 'package:safe_realtor_app/config.dart';
+import 'package:safe_realtor_app/utils/message_utils.dart';
 
 class FavoritesScreen extends StatefulWidget {
   final String userId;
@@ -13,7 +16,9 @@ class FavoritesScreen extends StatefulWidget {
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
   final PropertyService _propertyService = PropertyService();
-  List<Property> _favoriteProperties = [];
+
+  late Future<List<Property>> _favoriteProperties;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -21,86 +26,106 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     _loadFavoriteProperties();
   }
 
-  // 찜한 매물 목록 불러오기
+  // 찜 목록을 다시 로드하는 함수
   Future<void> _loadFavoriteProperties() async {
-    try {
-      // PropertyService를 통해 찜한 매물 목록을 가져옵니다.
-      List<Property> favoriteProperties =
-          await _propertyService.getFavoriteProperties(widget.userId);
+    setState(() {
+      _favoriteProperties = _fetchFavoritesWithHandling();
+    });
+  }
 
+  // 찜 목록을 가져오는 함수 (에러 핸들링 추가)
+  Future<List<Property>> _fetchFavoritesWithHandling() async {
+    try {
+      return await _propertyService.getFavoriteProperties(widget.userId);
+    } on SocketException catch (_) {
       setState(() {
-        _favoriteProperties = favoriteProperties;
+        _errorMessage = '인터넷 연결이 없습니다. 연결을 확인해주세요.';
       });
+      return [];
     } catch (e) {
-      // 에러가 발생한 경우 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('찜 목록을 불러오는 중 오류가 발생했습니다: $e')),
-      );
+      setState(() {
+        _errorMessage = '찜 목록을 불러오는 중 오류가 발생했습니다.';
+      });
+      return [];
     }
   }
 
-  void _removeFavorite(Property property) async {
+  void _toggleFavorite(Property property) {
     try {
-      await _propertyService.removeFavorite(widget.userId, property.id);
-
       setState(() {
-        _favoriteProperties.remove(property); // 목록에서 매물 삭제
+        if (property.isFavorite ?? false) {
+          property.isFavorite = false; // 찜 취소
+          _propertyService.removeFavorite(widget.userId, property.id);
+        } else {
+          property.isFavorite = true; // 찜 추가
+          _propertyService.addFavorite(widget.userId, property.id);
+        }
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('찜 목록에서 제거되었습니다.')),
-      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('찜 제거 중 오류가 발생했습니다: $e')),
-      );
+      showErrorMessage(context, '찜 상태를 변경하는 중 오류가 발생했습니다.',
+          error: e.toString());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('찜한 매물 목록'),
-        ),
-        body: _favoriteProperties.isEmpty
-            ? const Center(child: Text('찜한 매물이 없습니다.'))
-            : ListView.builder(
-                itemCount: _favoriteProperties.length,
-                itemBuilder: (context, index) {
-                  final property = _favoriteProperties[index];
-                  return ListTile(
-                    leading: property.imageUrls.isNotEmpty
-                        ? Image.network(
-                            property.imageUrls[0], // 첫 번째 이미지 썸네일로 사용
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'assets/images/default_thumbnail.png', // 썸네일이 없을 때 기본 이미지
-                            width: 50,
-                            height: 50,
-                          ),
-                    title: Text('${property.type} - ${property.price}'),
-                    subtitle: Text(property.description),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.favorite, color: Colors.red),
-                      onPressed: () {
-                        // 찜 취소 로직 추가
-                        _removeFavorite(property);
-                      },
+    return FutureBuilder<List<Property>>(
+      future: _favoriteProperties,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (_errorMessage != null) {
+          return Center(child: Text(_errorMessage!));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('찜한 매물이 없습니다.'));
+        }
+
+        final properties = snapshot.data!;
+
+        return RefreshIndicator(
+          onRefresh: _loadFavoriteProperties, // 새로고침 시 호출
+          child: ListView.builder(
+            itemCount: properties.length,
+            itemBuilder: (context, index) {
+              final property = properties[index];
+              final isFavorite = property.isFavorite ?? false; // 서버에서 받은 찜 여부
+
+              return ListTile(
+                leading: property.imageUrls.isNotEmpty
+                    ? Image.network(
+                        '${Config.apiBaseUrl}${property.imageUrls.first}', // 첫 번째 이미지를 썸네일로 표시
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/default_thumbnail.png', // 로컬 기본 썸네일 이미지
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                title: Text('${property.type} - ${property.price}'),
+                subtitle: Text(property.description),
+                trailing: IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : null,
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PropertyDetailScreen(property: property),
-                        ),
-                      );
-                    },
+                    onPressed: () => _toggleFavorite(property)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PropertyDetailScreen(property: property),
+                    ),
                   );
-                }));
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }

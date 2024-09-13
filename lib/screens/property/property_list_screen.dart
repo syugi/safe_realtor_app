@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../../services/property_service.dart';
 import 'property_detail_screen.dart';
 import 'package:safe_realtor_app/models/Property.dart';
 import 'dart:async';
 import 'package:safe_realtor_app/config.dart';
+import 'package:safe_realtor_app/utils/message_utils.dart';
 
 class PropertyListScreen extends StatefulWidget {
   final String userId;
@@ -17,6 +20,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   final PropertyService _propertyService = PropertyService();
 
   late Future<List<Property>> _propertyList;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -27,20 +31,42 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   // 매물 목록을 다시 로드하는 함수
   Future<void> _loadProperties() async {
     setState(() {
-      _propertyList = _propertyService.fetchProperties(widget.userId);
+      _propertyList = _fetchPropertiesWithHandling();
     });
   }
 
+  // 매물 목록을 가져오는 함수 (에러 핸들링 추가)
+  Future<List<Property>> _fetchPropertiesWithHandling() async {
+    try {
+      return await _propertyService.fetchProperties(widget.userId);
+    } on SocketException catch (_) {
+      setState(() {
+        _errorMessage = '인터넷 연결이 없습니다. 연결을 확인해주세요.';
+      });
+      return [];
+    } catch (e) {
+      setState(() {
+        _errorMessage = '매물 목록을 불러오는 중 오류가 발생했습니다.';
+      });
+      return [];
+    }
+  }
+
   void _toggleFavorite(Property property) {
-    setState(() {
-      if (property.isFavorite ?? false) {
-        property.isFavorite = false; // 찜 취소
-        _propertyService.removeFavorite(widget.userId, property.id);
-      } else {
-        property.isFavorite = true; // 찜 추가
-        _propertyService.addFavorite(widget.userId, property.id);
-      }
-    });
+    try {
+      setState(() {
+        if (property.isFavorite ?? false) {
+          property.isFavorite = false; // 찜 취소
+          _propertyService.removeFavorite(widget.userId, property.id);
+        } else {
+          property.isFavorite = true; // 찜 추가
+          _propertyService.addFavorite(widget.userId, property.id);
+        }
+      });
+    } catch (e) {
+      showErrorMessage(context, '찜 상태를 변경하는 중 오류가 발생했습니다.',
+          error: e.toString());
+    }
   }
 
   @override
@@ -50,8 +76,8 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('오류 발생: ${snapshot.error}'));
+        } else if (_errorMessage != null) {
+          return Center(child: Text(_errorMessage!));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('조회된 매물이 없습니다.'));
         }

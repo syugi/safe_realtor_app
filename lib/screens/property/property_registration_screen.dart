@@ -4,6 +4,7 @@ import 'package:safe_realtor_app/utils/http_utils.dart';
 import 'package:safe_realtor_app/utils/http_status.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:safe_realtor_app/utils/message_utils.dart';
 
 class PropertyRegistrationScreen extends StatefulWidget {
   const PropertyRegistrationScreen({super.key});
@@ -60,10 +61,10 @@ class _PropertyRegistrationScreenState
     final response = await _propertyService.sendPropertyData(property, _images);
 
     if (response.statusCode == HttpStatus.created) {
-      _showMessage('매물 등록 성공!');
+      showSuccessMessage(context, '매물 등록 성공!');
     } else {
       final message = extractMessageFromResponse(response);
-      _showMessage('매물 등록 실패: $message');
+      showErrorMessage(context, '매물 등록 실패: $message');
     }
   }
 
@@ -94,11 +95,6 @@ class _PropertyRegistrationScreenState
       'options': _controllers['options']?.text,
       'securityFacilities': _controllers['securityFacilities']?.text,
     };
-  }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget _buildTextField(String key, String label,
