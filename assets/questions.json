@@ -1,0 +1,113 @@
+[
+    {
+        "key": "거주형태",
+        "text": "거주 형태가 월세, 전세, 매매 중 어떤 것인가요?",
+        "options": [
+            "월세",
+            "전세",
+            "매매"
+        ],
+        "multiSelect": true
+    },
+    {
+        "key": "월세 예산",
+        "text": "월세일 경우 보증금과 월세 예산은 얼마인가요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "전세 예산",
+        "text": "전세일 경우 가능한 전세금 범위는 얼마인가요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "전세대출",
+        "text": "전세일 경우 전세자금대출이 필요하신가요?",
+        "options": [
+            "예",
+            "아니오"
+        ],
+        "multiSelect": false
+    },
+    {
+        "key": "매매 예산",
+        "text": "매매일 경우 구매 가능한 예산은 얼마인가요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "지역",
+        "text": "어떤 지역에서 거주하고 싶으신가요? 예: 특정 동네 또는 구체적인 지역",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "주거 공간 크기",
+        "text": "희망하는 주거 공간의 크기와 방, 화장실 개수는 어떻게 되나요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "주차 공간",
+        "text": "주차 공간이 필요하신가요?",
+        "options": [
+            "예",
+            "아니오"
+        ],
+        "multiSelect": false
+    },
+    {
+        "key": "엘리베이터",
+        "text": "엘리베이터가 꼭 필요한가요?",
+        "options": [
+            "예",
+            "아니오"
+        ],
+        "multiSelect": false
+    },
+    {
+        "key": "반려동물",
+        "text": "반려동물을 키우시거나 키우실 계획이 있으신가요?",
+        "options": [
+            "예",
+            "아니오"
+        ],
+        "multiSelect": false
+    },
+    {
+        "key": "건물 형태",
+        "text": "선호하시는 건물 형태는 무엇인가요?",
+        "options": [
+            "빌라",
+            "오피스텔",
+            "아파트",
+            "단독주택"
+        ],
+        "multiSelect": true
+    },
+    {
+        "key": "층수",
+        "text": "선호하는 층수가 있으신가요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "편의시설 및 학군",
+        "text": "주변 편의시설이나 학군 등의 요구사항이 있으신가요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "입주 날짜",
+        "text": "입주 가능한 날짜는 언제인가요?",
+        "options": null,
+        "multiSelect": false
+    },
+    {
+        "key": "추가 옵션",
+        "text": "추가로 원하는 옵션 사항이 있으신가요? (에어컨, 가구, 세탁기 등)",
+        "options": null,
+        "multiSelect": false
+    }
+]

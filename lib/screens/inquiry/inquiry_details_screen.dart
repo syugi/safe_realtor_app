@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InquiryDetailsScreen extends StatefulWidget {
@@ -21,39 +23,13 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
   }
 
   // 질문 목록을 불러오는 함수
-  void _loadQuestions() {
-    questions = [
-      {
-        'key': '거주형태',
-        'text': '거주 형태가 월세, 전세, 매매 중 어떤 것인가요?',
-        'options': ['월세', '전세', '매매'],
-        'multiSelect': true // 다중 선택 가능
-      },
-      {
-        'key': '월세 예산',
-        'text': '월세일 경우 보증금과 월세 예산은 얼마인가요?',
-        'options': null, // 텍스트 입력
-        'multiSelect': false
-      },
-      {
-        'key': '지역',
-        'text': '원하는 지역을 알려주세요',
-        'options': null, // 텍스트 입력
-        'multiSelect': false
-      },
-      {
-        'key': '주차',
-        'text': '주차가 필수인가요?',
-        'options': ['예', '아니오'],
-        'multiSelect': false // 단일 선택
-      },
-      {
-        'key': '엘리베이터',
-        'text': '엘리베이터가 필요하신가요?',
-        'options': ['예', '아니오'],
-        'multiSelect': false // 단일 선택
-      },
-    ];
+  Future<void> _loadQuestions() async {
+    final String response =
+        await rootBundle.loadString('assets/questions.json');
+    final List<dynamic> data = json.decode(response);
+    setState(() {
+      questions = data.cast<Map<String, dynamic>>();
+    });
   }
 
   // 답변을 저장하는 함수 (단일 선택/다중 선택 처리)
