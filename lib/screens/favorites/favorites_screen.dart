@@ -57,7 +57,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   void _toggleFavorite(Property property) {
     try {
       setState(() {
-        if (property.isFavorite ?? false) {
+        if (property.isFavorite) {
           property.isFavorite = false; // 찜 취소
           _propertyService.removeFavorite(widget.userId, property.id);
         } else {

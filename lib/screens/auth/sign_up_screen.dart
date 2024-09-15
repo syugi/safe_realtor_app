@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:safe_realtor_app/screens/auth/login_screen.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/common/password_field.dart';
-import 'package:safe_realtor_app/utils/http_status.dart';
+import 'package:safe_realtor_app/utils/http_utils.dart';
 import '../home.dart';
 
 class SignUpScreen extends StatefulWidget {

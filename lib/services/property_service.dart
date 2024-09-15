@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:safe_realtor_app/models/Property.dart';
 import 'api_service.dart';
-import 'package:safe_realtor_app/utils/http_status.dart';
 import 'dart:convert';
 
 class PropertyService {

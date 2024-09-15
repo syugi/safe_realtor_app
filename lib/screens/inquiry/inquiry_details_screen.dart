@@ -15,6 +15,7 @@ class InquiryDetailsScreen extends StatefulWidget {
 class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
   List<Map<String, dynamic>> questions = [];
   int currentQuestionIndex = 0;
+  bool isLoading = true; // 로딩 상태 추가
 
   @override
   void initState() {
@@ -24,12 +25,20 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
 
   // 질문 목록을 불러오는 함수
   Future<void> _loadQuestions() async {
-    final String response =
-        await rootBundle.loadString('assets/questions.json');
-    final List<dynamic> data = json.decode(response);
-    setState(() {
-      questions = data.cast<Map<String, dynamic>>();
-    });
+    try {
+      final String response =
+          await rootBundle.loadString('assets/questions.json');
+      final List<dynamic> data = json.decode(response);
+      setState(() {
+        questions = data.cast<Map<String, dynamic>>();
+        isLoading = false; // 로딩 완료
+      });
+    } catch (e) {
+      print('Failed to load questions: $e');
+      setState(() {
+        isLoading = false; // 로딩 실패 시에도 종료
+      });
+    }
   }
 
   // 답변을 저장하는 함수 (단일 선택/다중 선택 처리)
@@ -51,7 +60,11 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
 
   // 선택지가 있는 경우 버튼 UI로 출력 (다중 선택 여부에 따라 처리)
   Widget _buildOptions(
-      List<String> options, String? selectedValue, bool multiSelect) {
+      List<dynamic>? options, String? selectedValue, bool multiSelect) {
+    if (options == null) {
+      return Container(); // options가 없을 경우 빈 컨테이너 반환
+    }
+
     List<String> selectedAnswers = selectedValue?.split(',') ?? [];
     return Wrap(
       spacing: 10.0, // 버튼 간격
@@ -78,22 +91,27 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
   // SharedPreferences에 저장하는 함수
   Future<void> _saveToSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    for (var question in questions) {
-      String key = question['key'];
-      String? value = widget.answers[key];
-      if (value != null) {
-        prefs.setString(key, value);
-      }
-    }
+    String answersJson = jsonEncode(widget.answers); // Map을 JSON으로 변환
+    await prefs.setString('detailed_answers', answersJson);
     // 저장 후 페이지 종료
     Navigator.pop(context, widget.answers);
   }
 
   @override
   Widget build(BuildContext context) {
+    // 로딩 중이거나 질문 목록이 비어있을 때 처리
+    if (isLoading || questions.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('상세 요청사항')),
+        body: const Center(
+          child: CircularProgressIndicator(), // 로딩 중에 표시할 내용
+        ),
+      );
+    }
+
     String questionKey = questions[currentQuestionIndex]['key'];
     String questionText = questions[currentQuestionIndex]['text'];
-    List<String>? options = questions[currentQuestionIndex]['options'];
+    List<dynamic>? options = questions[currentQuestionIndex]['options'];
     bool multiSelect = questions[currentQuestionIndex]['multiSelect'];
     String? selectedValue = widget.answers[questionKey];
 

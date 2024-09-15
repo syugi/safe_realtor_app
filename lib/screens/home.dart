@@ -130,7 +130,8 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const InquiryFormScreen()),
+                            builder: (context) =>
+                                InquiryFormScreen(userId: _userId!)),
                       );
                     });
                   },

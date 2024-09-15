@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import 'sign_up_screen.dart';
 import '../../styles/app_styles.dart';
-import 'package:safe_realtor_app/utils/http_status.dart';
 import '../home.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
 import 'dart:convert';

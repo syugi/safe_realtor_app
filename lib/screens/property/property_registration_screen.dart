@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_realtor_app/services/property_service.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
-import 'package:safe_realtor_app/utils/http_status.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:safe_realtor_app/utils/message_utils.dart';

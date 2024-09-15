@@ -1,10 +1,16 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'inquiry_details_screen.dart'; // 상세 요청사항 페이지
+import 'inquiry_details_screen.dart';
 import 'package:safe_realtor_app/styles/app_styles.dart';
+import 'package:safe_realtor_app/services/inquiry_service.dart';
+import 'package:safe_realtor_app/utils/message_utils.dart';
+import 'package:safe_realtor_app/utils/http_utils.dart';
 
 class InquiryFormScreen extends StatefulWidget {
-  const InquiryFormScreen({super.key});
+  final String userId;
+  const InquiryFormScreen({super.key, required this.userId});
 
   @override
   State<InquiryFormScreen> createState() => _InquiryFormScreenState();
@@ -13,28 +19,55 @@ class InquiryFormScreen extends StatefulWidget {
 class _InquiryFormScreenState extends State<InquiryFormScreen> {
   String? phoneNumber;
   TextEditingController inquiryController = TextEditingController();
+  final InquiryService _inquiryService = InquiryService();
   Map<String, String> answers = {};
+  List<String> propertyNumbers = [];
+  List<Map<String, dynamic>> questions = [];
 
   @override
   void initState() {
     super.initState();
     _loadPhoneNumber();
-    _loadAnswersFromPreferences(); // SharedPreferences에서 상세 요청사항 불러오기
+    _loadQuestions();
     inquiryController.text = "매물에 대해 상담 받고 싶습니다."; // 기본 문의 내용
+  }
+
+// 질문을 JSON 파일에서 로드
+  Future<void> _loadQuestions() async {
+    String jsonString = await rootBundle.loadString('assets/questions.json');
+    setState(() {
+      questions = List<Map<String, dynamic>>.from(json.decode(jsonString));
+      _loadAnswersFromPreferences(); // SharedPreferences에서 상세 요청사항 불러오기
+    });
   }
 
   // SharedPreferences에서 상세 요청사항 불러오기
   Future<void> _loadAnswersFromPreferences() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? answersJson = prefs.getString('detailed_answers');
+    if (answersJson != null) {
+      setState(() {
+        answers = Map<String, String>.from(jsonDecode(answersJson));
+      });
+    }
+  }
+
+  // SharedPreferences에 전체 상세 요청사항 저장하기
+  // Future<void> _saveAnswersToPreferences() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String answersJson = jsonEncode(answers); // Map을 JSON으로 변환
+  //   await prefs.setString('detailed_answers', answersJson);
+  //   print('상세 요청사항 저장 완료');
+  // }
+
+  // SharedPreferences에서 상세 요청사항 전체 삭제하기
+  Future<void> _deleteAnswers() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      answers = {
-        '거주형태': prefs.getString('거주형태') ?? '',
-        '월세 예산': prefs.getString('월세 예산') ?? '',
-        '지역': prefs.getString('지역') ?? '',
-        '주차': prefs.getString('주차') ?? '',
-        '엘리베이터': prefs.getString('엘리베이터') ?? '',
-      };
+      answers.clear(); // 메모리에서 상세 요청사항 삭제
     });
+    await prefs.remove('detailed_answers'); // 전체 삭제
+    print('상세 요청사항 삭제 완료');
   }
 
   // 사용자 전화번호 불러오기
@@ -117,27 +150,28 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
     if (result != null) {
       setState(() {
         answers = result; // 상세 요청사항 업데이트
+        // _saveAnswersToPreferences(); // 업데이트된 상세 요청사항 저장
       });
     }
   }
 
   // 문의 제출 처리
-  void _submitInquiry() {
-    print('문의 제출 완료'); // 여기에 실제 문의 제출 로직 추가
-  }
+  void _submitInquiry() async {
+    try {
+      String inquiryContent = inquiryController.text;
+      final response = await _inquiryService.submitInquiry(
+          widget.userId, inquiryContent, answers.toString(), propertyNumbers);
 
-  // 상세 요청사항 삭제 처리
-  Future<void> _deleteAnswers() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      answers.clear(); // 메모리에서 상세 요청사항 삭제
-    });
-    await prefs.remove('거주형태');
-    await prefs.remove('월세 예산');
-    await prefs.remove('지역');
-    await prefs.remove('주차');
-    await prefs.remove('엘리베이터');
-    print('상세 요청사항 삭제 완료');
+      if (response.statusCode == HttpStatus.ok) {
+        showSuccessMessage(context, '문의가 성공적으로 제출되었습니다.');
+      } else {
+        final message = extractMessageFromResponse(response);
+        showErrorMessage(context, '문의 제출에 실패했습니다. 다시 시도해주세요.', error: message);
+      }
+    } catch (e) {
+      showErrorMessage(context, '문의 제출에 실패했습니다.다시 시도해주세요.',
+          error: e.toString());
+    }
   }
 
   // 상세 요청사항 삭제 다이얼로그
@@ -237,14 +271,22 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: answers.keys.map((key) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 5),
-                          child: Text('$key: ${answers[key]}'),
-                        );
-                      }).toList(),
+                    child: SizedBox(
+                      height: 150,
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: answers.keys.map((key) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: Text('$key: ${answers[key]}'),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
