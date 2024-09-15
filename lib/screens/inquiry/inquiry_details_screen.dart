@@ -4,15 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InquiryDetailsScreen extends StatefulWidget {
-  final Map<String, dynamic> answers;
-
-  const InquiryDetailsScreen({super.key, required this.answers});
+  const InquiryDetailsScreen({super.key});
 
   @override
   State<InquiryDetailsScreen> createState() => _InquiryDetailsScreenState();
 }
 
 class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
+  Map<String, dynamic> answers = {};
   List<Map<String, dynamic>> questions = [];
   int currentQuestionIndex = 0;
   bool isLoading = true; // 로딩 상태 추가
@@ -21,6 +20,7 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
   void initState() {
     super.initState();
     _loadQuestions();
+    _loadAnswersFromPreferences();
   }
 
   // 질문 목록을 불러오는 함수
@@ -41,19 +41,30 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
     }
   }
 
+  // SharedPreferences에서 저장된 상세 요청 사항을 불러오기
+  Future<void> _loadAnswersFromPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedAnswersJson = prefs.getString('detailed_answers');
+    if (savedAnswersJson != null) {
+      setState(() {
+        answers = jsonDecode(savedAnswersJson);
+      });
+    }
+  }
+
   // 답변을 저장하는 함수 (단일 선택/다중 선택 처리)
   void _saveAnswer(String answer, bool multiSelect) {
     String key = questions[currentQuestionIndex]['key'];
     if (multiSelect) {
-      List<String> selectedAnswers = widget.answers[key]?.split(',') ?? [];
+      List<String> selectedAnswers = answers[key]?.split(',') ?? [];
       if (selectedAnswers.contains(answer)) {
         selectedAnswers.remove(answer);
       } else {
         selectedAnswers.add(answer);
       }
-      widget.answers[key] = selectedAnswers.join(',');
+      answers[key] = selectedAnswers.join(',');
     } else {
-      widget.answers[key] = answer;
+      answers[key] = answer;
     }
     setState(() {});
   }
@@ -91,10 +102,10 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
   // SharedPreferences에 저장하는 함수
   Future<void> _saveToSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String answersJson = jsonEncode(widget.answers); // Map을 JSON으로 변환
+    String answersJson = jsonEncode(answers); // Map을 JSON으로 변환
     await prefs.setString('detailed_answers', answersJson);
     // 저장 후 페이지 종료
-    Navigator.pop(context, widget.answers);
+    Navigator.pop(context, answers);
   }
 
   @override
@@ -113,7 +124,7 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
     String questionText = questions[currentQuestionIndex]['text'];
     List<dynamic>? options = questions[currentQuestionIndex]['options'];
     bool multiSelect = questions[currentQuestionIndex]['multiSelect'];
-    String? selectedValue = widget.answers[questionKey];
+    String? selectedValue = answers[questionKey];
 
     return Scaffold(
       appBar: AppBar(title: const Text('상세 요청사항')),
@@ -136,7 +147,7 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
                   _saveAnswer(value, multiSelect);
                 },
                 controller: TextEditingController(
-                  text: widget.answers[questionKey],
+                  text: answers[questionKey],
                 ),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),

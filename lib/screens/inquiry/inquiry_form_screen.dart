@@ -52,14 +52,6 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
     }
   }
 
-  // SharedPreferences에 전체 상세 요청사항 저장하기
-  // Future<void> _saveAnswersToPreferences() async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String answersJson = jsonEncode(answers); // Map을 JSON으로 변환
-  //   await prefs.setString('detailed_answers', answersJson);
-  //   print('상세 요청사항 저장 완료');
-  // }
-
   // SharedPreferences에서 상세 요청사항 전체 삭제하기
   Future<void> _deleteAnswers() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -123,7 +115,10 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
           content: const Text('상세 요청사항을 작성하시겠습니까?\n상세 요청사항은 상담에 도움이 됩니다.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _submitInquiry();
+              },
               child: const Text('바로 문의하기'),
             ),
             ElevatedButton(
@@ -144,13 +139,12 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => InquiryDetailsScreen(answers: answers),
+        builder: (context) => const InquiryDetailsScreen(),
       ),
     );
     if (result != null) {
       setState(() {
-        answers = result; // 상세 요청사항 업데이트
-        // _saveAnswersToPreferences(); // 업데이트된 상세 요청사항 저장
+        _loadAnswersFromPreferences(); // 업데이트된 상세 요청사항 불러오기
       });
     }
   }
@@ -164,6 +158,7 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
 
       if (response.statusCode == HttpStatus.ok) {
         showSuccessMessage(context, '문의가 성공적으로 제출되었습니다.');
+        Navigator.pop(context);
       } else {
         final message = extractMessageFromResponse(response);
         showErrorMessage(context, '문의 제출에 실패했습니다. 다시 시도해주세요.', error: message);
