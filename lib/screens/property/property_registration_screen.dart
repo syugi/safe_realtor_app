@@ -69,6 +69,7 @@ class _PropertyRegistrationScreenState
 
   Map<String, dynamic> _buildPropertyData() {
     return {
+      'agentId': 1, //중개사 아이디 임시
       'propertyNumber': _controllers['propertyNumber']?.text,
       'price': double.tryParse(_controllers['price']?.text ?? ''),
       'description': _controllers['description']?.text,

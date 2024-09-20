@@ -45,11 +45,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       });
       _logger.e(_errorMessage, error: e);
       return [];
-    } catch (e) {
+    } catch (e, stackTrace) {
       setState(() {
         _errorMessage = '찜 목록을 불러오는 중 오류가 발생했습니다.';
       });
-      _logger.e(_errorMessage, error: e);
+      _logger.e(_errorMessage, error: e, stackTrace: stackTrace);
       return [];
     }
   }

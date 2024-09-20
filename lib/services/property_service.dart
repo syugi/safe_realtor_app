@@ -16,9 +16,13 @@ class PropertyService {
   }
 
   // 매물 목록 조회
-  Future<List<Property>> fetchProperties(String userId) async {
-    final response =
-        await _apiService.getRequest('/api/properties', {'userId': userId});
+  Future<List<Property>> fetchProperties(String userId,
+      {int page = 1, int perPage = 10}) async {
+    final response = await _apiService.getRequest('/api/properties', {
+      'userId': userId,
+      'page': page.toString(),
+      'perPage': perPage.toString()
+    });
     if (response.statusCode == HttpStatus.ok) {
       final decodedResponseBody = utf8.decode(response.bodyBytes);
       final List<dynamic> data = jsonDecode(decodedResponseBody);

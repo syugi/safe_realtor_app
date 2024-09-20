@@ -23,39 +23,72 @@ class _PropertyListScreenState extends State<PropertyListScreen>
   final PropertyService _propertyService = PropertyService();
   final Logger _logger = Logger();
 
-  late Future<List<Property>> _propertyList;
+  final ScrollController _scrollController = ScrollController();
+
+  final List<Property> _properties = [];
   String? _errorMessage;
+  bool _isLoading = false;
+  bool _hasMore = true;
+  int _currentPage = 1;
+  final int _perPage = 10; // 한 번에 불러올 매물 수
 
   @override
   void initState() {
     super.initState();
-    _loadProperties(); // 매물 목록 조회
+    _loadProperties(); // 초기 데이터 로드
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // ScrollController 해제
+    super.dispose();
+  }
+
+  // 스크롤이 끝에 도달했을 때 데이터를 더 불러오는 함수
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      if (!_isLoading && _hasMore) {
+        _loadProperties(); // 추가 매물 불러오기
+      }
+    }
   }
 
   // 매물 목록을 다시 로드하는 함수
   Future<void> _loadProperties() async {
-    setState(() {
-      _errorMessage = null; // 오류 메시지 초기화
-      _propertyList = _fetchPropertiesWithHandling();
-    });
-  }
+    if (_isLoading) return;
 
-  // 매물 목록을 가져오는 함수 (에러 핸들링 추가)
-  Future<List<Property>> _fetchPropertiesWithHandling() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
     try {
-      return await _propertyService.fetchProperties(widget.userId);
+      final newProperties = await _propertyService.fetchProperties(
+        widget.userId,
+        page: _currentPage,
+        perPage: _perPage,
+      );
+
+      setState(() {
+        _properties.addAll(newProperties); // 새로운 매물 추가
+        _currentPage++; // 다음 페이지로 넘김
+        _hasMore = newProperties.length == _perPage; // 다음 페이지에 더 있을지 확인
+        _isLoading = false;
+      });
     } on SocketException catch (e) {
       setState(() {
         _errorMessage = '인터넷 연결이 없습니다. 연결을 확인해주세요.';
+        _isLoading = false;
       });
       _logger.e(_errorMessage, error: e);
-      return [];
     } catch (e) {
       setState(() {
         _errorMessage = '매물 목록을 불러오는 중 오류가 발생했습니다.';
+        _isLoading = false;
       });
       _logger.e(_errorMessage, error: e);
-      return [];
     }
   }
 
@@ -73,7 +106,7 @@ class _PropertyListScreenState extends State<PropertyListScreen>
   void _toggleFavorite(Property property) {
     try {
       setState(() {
-        if (property.isFavorite ?? false) {
+        if (property.isFavorite) {
           property.isFavorite = false; // 찜 취소
           _propertyService.removeFavorite(widget.userId, property.id);
         } else {
@@ -87,74 +120,87 @@ class _PropertyListScreenState extends State<PropertyListScreen>
     }
   }
 
+  Widget _buildPropertyImage(Property property) {
+    return property.imageUrls.isNotEmpty
+        ? Image.network(
+            '${Config.apiBaseUrl}${property.imageUrls.first}',
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          )
+        : Image.asset(
+            'assets/images/default_thumbnail.png',
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Property>>(
-      future: _propertyList,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (_errorMessage != null) {
-          return Center(
+    return Scaffold(
+      body: _errorMessage != null
+          ? Center(
               child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(_errorMessage!),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: _loadProperties, child: const Text('새로고침')),
-            ],
-          ));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('조회된 매물이 없습니다.'));
-        }
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_errorMessage!),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _loadProperties,
+                    child: const Text('새로고침'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: () async {
+                // 새로고침 시 데이터 초기화
+                setState(() {
+                  _properties.clear();
+                  _currentPage = 1;
+                  _hasMore = true;
+                });
+                await _loadProperties();
+              },
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: _properties.length + 1, // 로딩 인디케이터를 위해 +1
+                itemBuilder: (context, index) {
+                  if (index == _properties.length) {
+                    // 로딩 인디케이터 표시
+                    return _hasMore
+                        ? const Center(child: CircularProgressIndicator())
+                        : const Center(child: Text(''));
+                  }
 
-        final properties = snapshot.data!;
-
-        return RefreshIndicator(
-          onRefresh: _loadProperties, // 새로고침 시 호출
-          child: ListView.builder(
-            itemCount: properties.length,
-            itemBuilder: (context, index) {
-              final property = properties[index];
-              final isFavorite = property.isFavorite; // 서버에서 받은 찜 여부
-
-              return ListTile(
-                leading: property.imageUrls.isNotEmpty
-                    ? Image.network(
-                        '${Config.apiBaseUrl}${property.imageUrls.first}', // 첫 번째 이미지를 썸네일로 표시
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.asset(
-                        'assets/images/default_thumbnail.png', // 로컬 기본 썸네일 이미지
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
+                  final property = _properties[index];
+                  return ListTile(
+                    leading: _buildPropertyImage(property),
+                    title: Text('${property.type} - ${property.price}'),
+                    subtitle: Text(property.description),
+                    trailing: IconButton(
+                      icon: Icon(
+                        property.isFavorite
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: property.isFavorite ? Colors.red : null,
                       ),
-                title: Text('${property.type} - ${property.price}'),
-                subtitle: Text(property.description),
-                trailing: IconButton(
-                    icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorite ? Colors.red : null,
+                      onPressed: () => _handleFavorite(property),
                     ),
-                    onPressed: () => _handleFavorite(property)),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          PropertyDetailScreen(property: property),
-                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              PropertyDetailScreen(property: property),
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-        );
-      },
+              ),
+            ),
     );
   }
 }
