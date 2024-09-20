@@ -15,12 +15,19 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
   List<Map<String, dynamic>> questions = [];
   int currentQuestionIndex = 0;
   bool isLoading = true; // 로딩 상태 추가
+  TextEditingController textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadQuestions();
     _loadAnswersFromPreferences();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose(); // 컨트롤러 해제
+    super.dispose();
   }
 
   // 질문 목록을 불러오는 함수
@@ -48,8 +55,15 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
     if (savedAnswersJson != null) {
       setState(() {
         answers = jsonDecode(savedAnswersJson);
+        _updateTextController();
       });
     }
+  }
+
+// TextController를 현재 질문의 답변으로 업데이트
+  void _updateTextController() {
+    String questionKey = questions[currentQuestionIndex]['key'];
+    textController.text = answers[questionKey] ?? '';
   }
 
   // 답변을 저장하는 함수 (단일 선택/다중 선택 처리)
@@ -127,7 +141,10 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
     String? selectedValue = answers[questionKey];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('상세 요청사항')),
+      appBar: AppBar(
+        title:
+            Text('상세 요청사항 (${currentQuestionIndex + 1}/${questions.length})'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -146,22 +163,32 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
                 onChanged: (value) {
                   _saveAnswer(value, multiSelect);
                 },
-                controller: TextEditingController(
-                  text: answers[questionKey],
-                ),
+                controller: textController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
               ),
             const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                if (currentQuestionIndex > 0)
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        currentQuestionIndex--;
+                        _updateTextController(); // 이전 질문으로 이동 시 텍스트 업데이트
+                      });
+                    },
+                    child: const Text('이전'),
+                  ),
+                const Spacer(),
                 if (currentQuestionIndex < questions.length - 1)
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
                         currentQuestionIndex++;
+                        _updateTextController();
                       });
                     },
                     child: const Text('다음'),
@@ -169,6 +196,10 @@ class _InquiryDetailsScreenState extends State<InquiryDetailsScreen> {
                 else
                   ElevatedButton(
                     onPressed: _saveToSharedPreferences, // 저장 버튼 클릭 시 저장
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green, // 버튼 텍스트 색상
+                    ),
                     child: const Text('저장'),
                   ),
               ],
