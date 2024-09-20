@@ -16,7 +16,7 @@ mixin LoginHelper<T extends StatefulWidget> on State<T> {
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.6, // 화면의 60% 높이로 시작
+          initialChildSize: 0.8, // 화면의 60% 높이로 시작
           maxChildSize: 0.9, // 최대 높이는 화면의 90%
           minChildSize: 0.4, // 최소 높이는 화면의 40%
           builder: (BuildContext context, ScrollController scrollController) {

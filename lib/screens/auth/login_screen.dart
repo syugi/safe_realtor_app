@@ -65,64 +65,71 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '안부',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.0, // 키보드 대응
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '안부',
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    Icon(
+                      Icons.home,
+                      size: 70,
                       color: AppColors.primaryColor,
                     ),
-                  ),
-                  Icon(
-                    Icons.home,
-                    size: 70,
-                    color: AppColors.primaryColor,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: idController,
-                decoration: const InputDecoration(
-                  labelText: '아이디',
-                  border: OutlineInputBorder(),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '비밀번호',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: idController,
+                  decoration: const InputDecoration(
+                    labelText: '아이디',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(onPressed: _login, child: const Text('로그인')),
-              Text(
-                _loginMessage,
-                style: const TextStyle(color: Colors.red),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const SignUpScreen()),
-                  );
-                },
-                child: const Text('회원가입'),
-              ),
-            ],
+                const SizedBox(height: 20),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: '비밀번호',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(onPressed: _login, child: const Text('로그인')),
+                Text(
+                  _loginMessage,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SignUpScreen()),
+                    );
+                  },
+                  child: const Text('회원가입'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

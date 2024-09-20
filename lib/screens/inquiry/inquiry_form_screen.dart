@@ -23,6 +23,7 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
   Map<String, String> answers = {};
   List<String> propertyNumbers = [];
   List<Map<String, dynamic>> questions = [];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -30,6 +31,12 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
     _loadPhoneNumber();
     _loadQuestions();
     inquiryController.text = "매물에 대해 상담 받고 싶습니다."; // 기본 문의 내용
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
 // 질문을 JSON 파일에서 로드
@@ -153,8 +160,12 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
   void _submitInquiry() async {
     try {
       String inquiryContent = inquiryController.text;
+      String detailRequest = answers.entries.map((entry) {
+        return '${entry.key}: ${entry.value}';
+      }).join('\n');
+
       final response = await _inquiryService.submitInquiry(
-          widget.userId, inquiryContent, answers.toString(), propertyNumbers);
+          widget.userId, inquiryContent, detailRequest, propertyNumbers);
 
       if (response.statusCode == HttpStatus.ok) {
         showSuccessMessage(context, '문의가 성공적으로 제출되었습니다.');
@@ -199,102 +210,110 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('문의하기')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Bold 큰 글씨로 휴대폰 번호 텍스트
-            const Text('휴대폰 번호', style: AppStyles.sectionTitle),
-            const SizedBox(height: 10),
-            // 전화번호 입력 및 변경 버튼
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: TextEditingController(text: phoneNumber),
-                    enabled: false,
-                    decoration: AppStyles.textFieldDecoration,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                TextButton(
-                  onPressed: _onChangePhoneNumber,
-                  style: AppStyles.roundedTextButtonStyle, // 곡선 테두리 적용
-                  child: const Text('변경'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Bold 큰 글씨로 문의 내용 텍스트
-            const Text('문의 내용', style: AppStyles.sectionTitle),
-            const SizedBox(height: 10),
-            TextField(
-              controller: inquiryController,
-              maxLines: 5,
-              decoration: AppStyles.textFieldDecoration,
-            ),
-            const SizedBox(height: 20),
-
-            // 상세 요청사항 내용이 있는 경우 보여주기
-            if (answers.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.0, // 키보드 대응
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Bold 큰 글씨로 휴대폰 번호 텍스트
+              const Text('휴대폰 번호', style: AppStyles.sectionTitle),
+              const SizedBox(height: 10),
+              // 전화번호 입력 및 변경 버튼
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      const Text('상세 요청사항', style: AppStyles.sectionTitle),
-                      const SizedBox(width: 5),
-                      IconButton(
-                        onPressed: _navigateToDetailedRequest,
-                        icon: const Icon(Icons.edit),
-                        tooltip: '상세 요청사항 수정',
-                      ),
-                      IconButton(
-                        onPressed: _showDeleteDialog, // 삭제 아이콘 동작 추가
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        tooltip: '상세 요청사항 삭제',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
+                  Expanded(
+                    child: TextField(
+                      controller: TextEditingController(text: phoneNumber),
+                      enabled: false,
+                      decoration: AppStyles.textFieldDecoration,
                     ),
-                    child: SizedBox(
-                      height: 150,
-                      child: Scrollbar(
-                        thumbVisibility: true,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: answers.keys.map((key) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: Text('$key: ${answers[key]}'),
-                              );
-                            }).toList(),
+                  ),
+                  const SizedBox(width: 10),
+                  // TextButton(
+                  //   onPressed: _onChangePhoneNumber,
+                  //   style: AppStyles.roundedTextButtonStyle, // 곡선 테두리 적용
+                  //   child: const Text('변경'),
+                  // ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Bold 큰 글씨로 문의 내용 텍스트
+              const Text('문의 내용', style: AppStyles.sectionTitle),
+              const SizedBox(height: 10),
+              TextField(
+                controller: inquiryController,
+                maxLines: 5,
+                decoration: AppStyles.textFieldDecoration,
+              ),
+              const SizedBox(height: 15),
+
+              // 상세 요청사항 내용이 있는 경우 보여주기
+              if (answers.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('상세 요청사항', style: AppStyles.sectionTitle),
+                        const SizedBox(width: 5),
+                        IconButton(
+                          onPressed: _navigateToDetailedRequest,
+                          icon: const Icon(Icons.edit),
+                          tooltip: '상세 요청사항 수정',
+                        ),
+                        IconButton(
+                          onPressed: _showDeleteDialog, // 삭제 아이콘 동작 추가
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          tooltip: '상세 요청사항 삭제',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: SizedBox(
+                        height: 130,
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: answers.keys.map((key) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 5),
+                                  child: Text('$key: ${answers[key]}'),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _onInquirySubmit,
+                  style: AppStyles.wideElevatedButtonStyle, // 넓은 버튼 스타일
+                  child: const Text('문의하기'),
+                ),
               ),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: _onInquirySubmit,
-                style: AppStyles.wideElevatedButtonStyle, // 넓은 버튼 스타일
-                child: const Text('문의하기'),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
