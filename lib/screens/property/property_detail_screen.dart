@@ -25,155 +25,154 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('매물 ${widget.property.propertyNumber}'),
-        actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.share),
-          //   onPressed: () {}, // 공유 기능 구현
-          // ),
-          IconButton(
-              icon: Icon(
-                widget.property.isFavorite
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color: widget.property.isFavorite ? Colors.red : null,
-              ),
-              onPressed: _toggleFavorite),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            widget.property.imageUrls.isNotEmpty
-                ? Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CarouselSlider(
-                        options: CarouselOptions(
-                          autoPlay: false,
-                          aspectRatio: 1.5,
-                          enlargeCenterPage: false,
-                          enableInfiniteScroll: false,
-                          viewportFraction: 1.0,
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              _current = index;
-                            });
-                          },
-                        ),
-                        items: widget.property.imageUrls
-                            .map((item) => Container(
-                                  child: Center(
-                                      child: Image.network(item,
-                                          fit: BoxFit.cover, width: 1000)),
-                                ))
-                            .toList(),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Container(
-                          color: Colors.black45, // 텍스트의 가독성을 높이기 위해 반투명 배경 추가
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 20.0),
-                          child: Text(
-                            "${_current + 1} / ${widget.property.imageUrls.length}",
-                            style: const TextStyle(
-                                fontSize: 15, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Image.asset(
-                    'assets/images/default_thumbnail.png',
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${widget.property.type} ${widget.property.price}',
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Text(widget.property.title,
-                      style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 10,
-                    children: [
-                      Chip(
-                        label: Text(widget.property.roomType),
-                        avatar: const Icon(Icons.house_outlined),
-                      ),
-                      Chip(
-                        label: Text('${widget.property.area}㎡'),
-                        avatar: const Icon(Icons.square_foot_outlined),
-                      ),
-                      Chip(
-                        label: Text(widget.property.maintenanceFee),
-                        avatar: const Icon(Icons.receipt_sharp),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      if (widget.property.parkingAvailable)
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          color: Colors.grey[300],
-                          child: const Text('주차 가능'),
-                        ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      if (widget.property.elevatorAvailable)
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          color: Colors.grey[300],
-                          child: const Text('엘리베이터 있음'),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  buildDetailSection(),
-                  const SizedBox(height: 20),
-                  // 문의하기 버튼 추가
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      style: AppStyles.wideElevatedButtonStyle,
-                      onPressed: () {
-                        _handleLoginRequired(() {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => InquiryFormScreen(
-                                      propertyNumbers: [
-                                        widget.property.propertyNumber
-                                      ],
-                                    )),
-                          );
-                        });
-                      },
-                      child: const Text('문의하기'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        appBar: AppBar(
+          title: Text('매물 ${widget.property.propertyNumber}'),
+          actions: [
+            // IconButton(
+            //   icon: const Icon(Icons.share),
+            //   onPressed: () {}, // 공유 기능 구현
+            // ),
+            IconButton(
+                icon: Icon(
+                  widget.property.isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: widget.property.isFavorite ? Colors.red : null,
+                ),
+                onPressed: _toggleFavorite),
           ],
         ),
-      ),
-    );
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.property.imageUrls.isNotEmpty
+                    ? Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CarouselSlider(
+                            options: CarouselOptions(
+                              autoPlay: false,
+                              aspectRatio: 1.5,
+                              enlargeCenterPage: false,
+                              enableInfiniteScroll: false,
+                              viewportFraction: 1.0,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _current = index;
+                                });
+                              },
+                            ),
+                            items: widget.property.imageUrls
+                                .map((item) => Container(
+                                      child: Center(
+                                          child: Image.network(item,
+                                              fit: BoxFit.cover, width: 1000)),
+                                    ))
+                                .toList(),
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: Container(
+                              color:
+                                  Colors.black45, // 텍스트의 가독성을 높이기 위해 반투명 배경 추가
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5.0, horizontal: 20.0),
+                              child: Text(
+                                "${_current + 1} / ${widget.property.imageUrls.length}",
+                                style: const TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Image.asset(
+                        'assets/images/default_thumbnail.png',
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${widget.property.type} ${widget.property.price}',
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Text(widget.property.title,
+                          style: const TextStyle(fontSize: 18)),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        children: [
+                          Chip(
+                            label: Text(widget.property.roomType),
+                            avatar: const Icon(Icons.house_outlined),
+                          ),
+                          Chip(
+                            label: Text('${widget.property.area}㎡'),
+                            avatar: const Icon(Icons.square_foot_outlined),
+                          ),
+                          Chip(
+                            label: Text(widget.property.maintenanceFee),
+                            avatar: const Icon(Icons.receipt_sharp),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if (widget.property.parkingAvailable)
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              color: Colors.grey[300],
+                              child: const Text('주차 가능'),
+                            ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          if (widget.property.elevatorAvailable)
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              color: Colors.grey[300],
+                              child: const Text('엘리베이터 있음'),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      buildDetailSection(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            style: AppStyles.wideElevatedButtonStyle,
+            onPressed: () {
+              _handleLoginRequired(() {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => InquiryFormScreen(
+                            propertyNumbers: [widget.property.propertyNumber],
+                          )),
+                );
+              });
+            },
+            child: const Text('문의하기'),
+          ),
+        ));
   }
 
   Widget buildDetailSection() {
@@ -196,7 +195,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
         buildRowWithDivider('건축물 용도', widget.property.buildingUse),
         buildRowWithDivider('사용승인일', formatDate(widget.property.approvalDate)),
         buildRowWithDivider(
-            '최초등록일', formatDate(widget.property.firstRegistrationDate))
+            '최초등록일', formatDate(widget.property.firstRegistrationDate)),
+        buildRowWithDivider('위치', widget.property.address),
       ],
     );
   }
