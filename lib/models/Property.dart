@@ -2,6 +2,7 @@ class Property {
   final int id;
   final String propertyNumber;
   final String price;
+  final String title;
   final String description;
   final String type;
   final String maintenanceFee;
@@ -31,6 +32,7 @@ class Property {
     required this.id,
     required this.propertyNumber,
     required this.price,
+    required this.title,
     required this.description,
     required this.type,
     required this.maintenanceFee,
@@ -62,6 +64,7 @@ class Property {
       id: json['id'],
       propertyNumber: json['propertyNumber'],
       price: json['price'],
+      title: json['title'],
       description: json['description'],
       type: json['type'],
       maintenanceFee: json['maintenanceFee'] ?? '',

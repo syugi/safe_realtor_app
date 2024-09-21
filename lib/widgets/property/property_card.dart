@@ -75,7 +75,7 @@ class _PropertyCardState extends State<PropertyCard>
                       Text('관리비 ${widget.property.maintenanceFee}',
                           style: const TextStyle(fontSize: 14)),
                       const SizedBox(height: 4),
-                      Text(widget.property.description,
+                      Text(widget.property.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 14)),
