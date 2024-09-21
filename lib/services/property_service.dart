@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:safe_realtor_app/models/Property.dart';
 import 'api_service.dart';
 import 'dart:convert';
+import 'package:safe_realtor_app/utils/user_utils.dart';
 
 class PropertyService {
   final ApiService _apiService = ApiService();
@@ -16,8 +17,9 @@ class PropertyService {
   }
 
   // 매물 목록 조회
-  Future<List<Property>> fetchProperties(String userId,
+  Future<List<Property>> fetchProperties(
       {int page = 1, int perPage = 10}) async {
+    final userId = await getUserId();
     final response = await _apiService.getRequest('/api/properties', {
       'userId': userId,
       'page': page.toString(),
@@ -33,7 +35,8 @@ class PropertyService {
   }
 
   // 찜 목록 조회
-  Future<List<Property>> getFavoriteProperties(String userId) async {
+  Future<List<Property>> getFavoriteProperties() async {
+    final userId = await getUserId();
     final response = await _apiService.getRequest('/api/favorites/$userId', {});
     if (response.statusCode == HttpStatus.ok) {
       final decodedResponseBody = utf8.decode(response.bodyBytes);
@@ -45,7 +48,8 @@ class PropertyService {
   }
 
   // 찜 추가
-  Future<http.Response> addFavorite(String userId, int propertyId) async {
+  Future<http.Response> addFavorite(int propertyId) async {
+    final userId = await getUserId();
     final response = await _apiService.postRequest(
       '/api/favorites/add',
       {'userId': userId, 'propertyId': propertyId},
@@ -54,7 +58,8 @@ class PropertyService {
   }
 
   // 찜 삭제
-  Future<http.Response> removeFavorite(String userId, int propertyId) async {
+  Future<http.Response> removeFavorite(int propertyId) async {
+    final userId = await getUserId();
     final response = await _apiService.deleteRequest(
       '/api/favorites/remove',
       {'userId': userId, 'propertyId': propertyId},

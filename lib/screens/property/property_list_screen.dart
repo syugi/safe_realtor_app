@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../services/property_service.dart';
-import 'property_detail_screen.dart';
 import 'package:safe_realtor_app/models/Property.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:safe_realtor_app/config.dart';
-import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:logger/logger.dart';
-import 'package:safe_realtor_app/utils/user_utils.dart';
-import 'package:safe_realtor_app/mixins/login_helper.dart';
+import 'package:safe_realtor_app/widgets/property/property_card.dart';
 
 class PropertyListScreen extends StatefulWidget {
-  final String userId;
-  const PropertyListScreen({super.key, required this.userId});
+  const PropertyListScreen({super.key});
 
   @override
   State<PropertyListScreen> createState() => _PropertyListScreenState();
 }
 
-class _PropertyListScreenState extends State<PropertyListScreen>
-    with LoginHelper {
+class _PropertyListScreenState extends State<PropertyListScreen> {
   final PropertyService _propertyService = PropertyService();
   final Logger _logger = Logger();
 
@@ -66,7 +60,6 @@ class _PropertyListScreenState extends State<PropertyListScreen>
 
     try {
       final newProperties = await _propertyService.fetchProperties(
-        widget.userId,
         page: _currentPage,
         perPage: _perPage,
       );
@@ -90,50 +83,6 @@ class _PropertyListScreenState extends State<PropertyListScreen>
       });
       _logger.e(_errorMessage, error: e);
     }
-  }
-
-// 로그인 여부 체크 후 찜 기능 실행
-  void _handleFavorite(Property property) async {
-    bool loggedIn = await isLoggedIn(); // LoginHelper 사용하여 로그인 여부 확인
-
-    if (loggedIn) {
-      _toggleFavorite(property);
-    } else {
-      showLoginBottomSheet(context); // 로그인 모달 띄우기
-    }
-  }
-
-  void _toggleFavorite(Property property) {
-    try {
-      setState(() {
-        if (property.isFavorite) {
-          property.isFavorite = false; // 찜 취소
-          _propertyService.removeFavorite(widget.userId, property.id);
-        } else {
-          property.isFavorite = true; // 찜 추가
-          _propertyService.addFavorite(widget.userId, property.id);
-        }
-      });
-    } catch (e) {
-      showErrorMessage(context, '찜 상태를 변경하는 중 오류가 발생했습니다.',
-          error: e.toString());
-    }
-  }
-
-  Widget _buildPropertyImage(Property property) {
-    return property.imageUrls.isNotEmpty
-        ? Image.network(
-            '${Config.apiBaseUrl}${property.imageUrls.first}',
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          )
-        : Image.asset(
-            'assets/images/default_thumbnail.png',
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          );
   }
 
   @override
@@ -174,30 +123,8 @@ class _PropertyListScreenState extends State<PropertyListScreen>
                         ? const Center(child: CircularProgressIndicator())
                         : const Center(child: Text(''));
                   }
-
-                  final property = _properties[index];
-                  return ListTile(
-                    leading: _buildPropertyImage(property),
-                    title: Text('${property.type} - ${property.price}'),
-                    subtitle: Text(property.description),
-                    trailing: IconButton(
-                      icon: Icon(
-                        property.isFavorite
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: property.isFavorite ? Colors.red : null,
-                      ),
-                      onPressed: () => _handleFavorite(property),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PropertyDetailScreen(property: property),
-                        ),
-                      );
-                    },
+                  return PropertyCard(
+                    property: _properties[index],
                   );
                 },
               ),

@@ -1,15 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:safe_realtor_app/widgets/property/property_card.dart';
 import '../../services/property_service.dart';
-import 'package:safe_realtor_app/screens/property/property_detail_screen.dart';
 import 'package:safe_realtor_app/models/Property.dart';
-import 'package:safe_realtor_app/config.dart';
 import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:logger/logger.dart';
 
 class FavoritesScreen extends StatefulWidget {
-  final String userId;
-  const FavoritesScreen({super.key, required this.userId});
+  const FavoritesScreen({super.key});
 
   @override
   State<FavoritesScreen> createState() => _FavoritesScreenState();
@@ -38,7 +36,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   // 찜 목록을 가져오는 함수 (에러 핸들링 추가)
   Future<List<Property>> _fetchFavoritesWithHandling() async {
     try {
-      return await _propertyService.getFavoriteProperties(widget.userId);
+      return await _propertyService.getFavoriteProperties();
     } on SocketException catch (e) {
       setState(() {
         _errorMessage = '인터넷 연결이 없습니다. 연결을 확인해주세요.';
@@ -59,10 +57,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       setState(() {
         if (property.isFavorite) {
           property.isFavorite = false; // 찜 취소
-          _propertyService.removeFavorite(widget.userId, property.id);
+          _propertyService.removeFavorite(property.id);
         } else {
           property.isFavorite = true; // 찜 추가
-          _propertyService.addFavorite(widget.userId, property.id);
+          _propertyService.addFavorite(property.id);
         }
       });
     } catch (e) {
@@ -108,40 +106,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               child: ListView.builder(
                 itemCount: favoriteProperties.length,
                 itemBuilder: (context, index) {
-                  final property = favoriteProperties[index];
-                  final isFavorite = property.isFavorite; // 서버에서 받은 찜 여부
-
-                  return ListTile(
-                    leading: property.imageUrls.isNotEmpty
-                        ? Image.network(
-                            '${Config.apiBaseUrl}${property.imageUrls.first}', // 첫 번째 이미지를 썸네일로 표시
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'assets/images/default_thumbnail.png', // 로컬 기본 썸네일 이미지
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                    title: Text('${property.type} - ${property.price}'),
-                    subtitle: Text(property.description),
-                    trailing: IconButton(
-                        icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? Colors.red : null,
-                        ),
-                        onPressed: () => _toggleFavorite(property)),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PropertyDetailScreen(property: property),
-                        ),
-                      );
-                    },
+                  return PropertyCard(
+                    property: favoriteProperties[index],
                   );
                 },
               ),

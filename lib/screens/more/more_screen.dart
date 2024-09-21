@@ -3,9 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_realtor_app/screens/home.dart';
 
 class MoreScreen extends StatelessWidget {
-  final String userId;
-
-  const MoreScreen({super.key, required this.userId});
+  const MoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +49,7 @@ class MoreScreen extends StatelessWidget {
               // 계정 정보 페이지로 이동
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => AccountScreen(userId: userId)),
+                MaterialPageRoute(builder: (context) => const AccountScreen()),
               );
             },
           ),
@@ -141,9 +138,7 @@ class SettingsScreen extends StatelessWidget {
 
 // 예시용 계정 정보 페이지
 class AccountScreen extends StatelessWidget {
-  final String userId;
-
-  const AccountScreen({super.key, required this.userId});
+  const AccountScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -151,8 +146,8 @@ class AccountScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('계정 정보'),
       ),
-      body: Center(
-        child: Text('사용자 ID: $userId'),
+      body: const Center(
+        child: Text('사용자 ID'),
       ),
     );
   }

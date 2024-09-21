@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with LoginHelper {
   int _selectedIndex = 0;
   int? _userRole;
-  String? _userId;
   final List<Widget> _pages = []; // 화면 목록 초기화
 
   @override
@@ -30,17 +29,15 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
   // SharedPreferences에서 userId와 role을 불러오는 함수
   Future<void> _loadUserData() async {
     int userRole = await getUserRole();
-    String userId = await getUserId();
 
     setState(() {
       _userRole = userRole;
-      _userId = userId;
 
       // 각 탭 화면 초기화 (홈, 찜목록, 더보기)
       _pages.addAll([
         _buildHomeScreen(),
-        FavoritesScreen(userId: _userId!),
-        MoreScreen(userId: _userId!),
+        const FavoritesScreen(),
+        const MoreScreen(),
       ]);
     });
   }
@@ -130,8 +127,7 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                InquiryFormScreen(userId: _userId!)),
+                            builder: (context) => const InquiryFormScreen()),
                       );
                     });
                   },
@@ -142,8 +138,8 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
         ),
         const SizedBox(height: 16),
         // 매물 목록을 표시하는 부분
-        Expanded(
-          child: PropertyListScreen(userId: _userId!), // 매물 목록 화면 호출
+        const Expanded(
+          child: PropertyListScreen(), // 매물 목록 화면 호출
         ),
       ],
     );

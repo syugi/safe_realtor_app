@@ -9,8 +9,7 @@ import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
 
 class InquiryFormScreen extends StatefulWidget {
-  final String userId;
-  const InquiryFormScreen({super.key, required this.userId});
+  const InquiryFormScreen({super.key});
 
   @override
   State<InquiryFormScreen> createState() => _InquiryFormScreenState();
@@ -165,7 +164,7 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
       }).join('\n');
 
       final response = await _inquiryService.submitInquiry(
-          widget.userId, inquiryContent, detailRequest, propertyNumbers);
+          inquiryContent, detailRequest, propertyNumbers);
 
       if (response.statusCode == HttpStatus.ok) {
         showSuccessMessage(context, '문의가 성공적으로 제출되었습니다.');
