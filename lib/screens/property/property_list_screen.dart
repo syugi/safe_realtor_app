@@ -146,9 +146,10 @@ class _PropertyListScreenState extends State<PropertyListScreen>
                 children: [
                   Text(_errorMessage!),
                   const SizedBox(height: 20),
-                  ElevatedButton(
+                  IconButton(
                     onPressed: _loadProperties,
-                    child: const Text('새로고침'),
+                    icon: const Icon(Icons.refresh),
+                    tooltip: '새로고침',
                   ),
                 ],
               ),

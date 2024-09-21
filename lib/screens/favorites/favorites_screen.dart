@@ -89,9 +89,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   children: [
                     Text(_errorMessage!),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _loadFavoriteProperties, // 새로고침 버튼
-                      child: const Text('새로고침'),
+                    IconButton(
+                      onPressed: _loadFavoriteProperties,
+                      icon: const Icon(Icons.refresh),
+                      tooltip: '새로고침',
                     ),
                   ],
                 ),
