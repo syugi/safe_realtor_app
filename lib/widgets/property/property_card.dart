@@ -106,14 +106,14 @@ class _PropertyCardState extends State<PropertyCard>
       child: property.imageUrls.isNotEmpty
           ? Image.network(
               '${Config.apiBaseUrl}${property.imageUrls.first}',
-              width: 100,
-              height: 100,
+              width: 150,
+              height: 150,
               fit: BoxFit.cover,
             )
           : Image.asset(
               'assets/images/default_thumbnail.png',
-              width: 100,
-              height: 100,
+              width: 150,
+              height: 150,
               fit: BoxFit.cover,
             ),
     );
