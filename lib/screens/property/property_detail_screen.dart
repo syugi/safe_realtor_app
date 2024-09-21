@@ -28,14 +28,17 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
       appBar: AppBar(
         title: Text('매물 ${widget.property.propertyNumber}'),
         actions: [
+          // IconButton(
+          //   icon: const Icon(Icons.share),
+          //   onPressed: () {}, // 공유 기능 구현
+          // ),
           IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {}, // 공유 기능 구현
-          ),
-          IconButton(
-              icon: Icon(widget.property.isFavorite
-                  ? Icons.favorite
-                  : Icons.favorite_border),
+              icon: Icon(
+                widget.property.isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: widget.property.isFavorite ? Colors.red : null,
+              ),
               onPressed: _toggleFavorite),
         ],
       ),
