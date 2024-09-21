@@ -92,7 +92,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       } else {
         _isTimerActive = false;
         _timer?.cancel();
-        _verificationMessage = response.body;
+        final message = extractMessageFromResponse(response);
+        _verificationMessage = message;
       }
     });
   }
@@ -106,7 +107,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _isCodeVerified = true;
         FocusScope.of(context).requestFocus(userIdFocusNode);
       } else {
-        _verificationMessage = '인증 실패: ${response.body}';
+        final message = extractMessageFromResponse(response);
+        _verificationMessage = '인증 실패: $message';
       }
     });
   }
@@ -121,12 +123,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _checkUserIdAvailability() async {
-    final response =
-        await _authService.checkUserIdAvailability(userIdController.text);
-    setState(() {
-      _isUserIdAvailable = response.statusCode == HttpStatus.ok;
-      _userIdCheckMessage = response.body;
-    });
+    try {
+      final response =
+          await _authService.checkUserIdAvailability(userIdController.text);
+
+      setState(() {
+        if (response.statusCode == HttpStatus.ok) {
+          _isUserIdAvailable = true;
+          _userIdCheckMessage = "사용 가능한 아이디 입니다.";
+        } else {
+          _isUserIdAvailable = false;
+          _userIdCheckMessage = extractMessageFromResponse(response);
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isUserIdAvailable = false;
+        _userIdCheckMessage = "아이디 확인 중 에러가 발생했습니다. 다시 시도해주세요.";
+      });
+    }
   }
 
   Future<void> _register() async {
@@ -153,8 +168,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           (Route<dynamic> route) => false, // 이전 라우트 제거
         );
       } else {
+        final message = extractMessageFromResponse(response);
         setState(() {
-          _registrationMessage = '자동 로그인 실패: ${loginResponse.body}';
+          _registrationMessage = '자동 로그인 실패: $message';
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -163,8 +179,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         });
       }
     } else {
+      final message = extractMessageFromResponse(response);
       setState(() {
-        _registrationMessage = '회원가입 실패: ${response.body}';
+        _registrationMessage = '회원가입 실패: $message';
         _isSubmitting = false;
       });
     }
@@ -253,13 +270,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           onPressed: _checkUserIdAvailability,
           child: const Text('아이디 중복 확인'),
         ),
-        if (_userIdCheckMessage.isNotEmpty)
-          Text(
-            _userIdCheckMessage,
-            style: TextStyle(
-              color: _isUserIdAvailable ? Colors.green : Colors.red,
-            ),
+        if (_userIdCheckMessage.isNotEmpty) const SizedBox(height: 20),
+        Text(
+          _userIdCheckMessage,
+          style: TextStyle(
+            color: _isUserIdAvailable ? Colors.green : Colors.red,
           ),
+        ),
         if (_isUserIdAvailable) ...[
           const SizedBox(height: 20),
           PasswordField(
