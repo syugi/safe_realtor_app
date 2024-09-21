@@ -9,7 +9,9 @@ import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:safe_realtor_app/utils/http_utils.dart';
 
 class InquiryFormScreen extends StatefulWidget {
-  const InquiryFormScreen({super.key});
+  final List<String>? propertyNumbers;
+
+  const InquiryFormScreen({super.key, this.propertyNumbers});
 
   @override
   State<InquiryFormScreen> createState() => _InquiryFormScreenState();
@@ -30,6 +32,11 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
     _loadPhoneNumber();
     _loadQuestions();
     inquiryController.text = "매물에 대해 상담 받고 싶습니다."; // 기본 문의 내용
+
+    // 매물 번호가 있다면 상태에 저장
+    if (widget.propertyNumbers != null) {
+      propertyNumbers.addAll(widget.propertyNumbers!);
+    }
   }
 
   @override
@@ -243,6 +250,26 @@ class _InquiryFormScreenState extends State<InquiryFormScreen> {
                 ],
               ),
               const SizedBox(height: 20),
+
+              // 매물 번호가 있을 경우 표시
+              if (propertyNumbers.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('매물 번호', style: AppStyles.sectionTitle),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(propertyNumbers.join(', ')), // 매물 번호 리스트 표시
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
 
               // Bold 큰 글씨로 문의 내용 텍스트
               const Text('문의 내용', style: AppStyles.sectionTitle),

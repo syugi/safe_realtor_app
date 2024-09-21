@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:safe_realtor_app/screens/property/property_detail_screen.dart';
 import 'package:safe_realtor_app/models/Property.dart';
 import 'package:safe_realtor_app/services/property_service.dart';
-import 'package:safe_realtor_app/config.dart';
+
 import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:safe_realtor_app/mixins/login_helper.dart';
 import 'package:safe_realtor_app/utils/user_utils.dart';
@@ -105,7 +105,7 @@ class _PropertyCardState extends State<PropertyCard>
       ),
       child: property.imageUrls.isNotEmpty
           ? Image.network(
-              '${Config.apiBaseUrl}${property.imageUrls.first}',
+              property.imageUrls.first,
               width: 150,
               height: 150,
               fit: BoxFit.cover,
