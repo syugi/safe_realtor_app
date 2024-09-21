@@ -60,8 +60,8 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
 
     try {
       final newProperties = await _propertyService.fetchProperties(
-        page: _currentPage,
-        perPage: _perPage,
+        _currentPage,
+        _perPage,
       );
 
       setState(() {

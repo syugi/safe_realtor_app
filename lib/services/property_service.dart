@@ -17,8 +17,7 @@ class PropertyService {
   }
 
   // 매물 목록 조회
-  Future<List<Property>> fetchProperties(
-      {int page = 1, int perPage = 10}) async {
+  Future<List<Property>> fetchProperties(int page, int perPage) async {
     final userId = await getUserId();
     final response = await _apiService.getRequest('/api/properties', {
       'userId': userId,
@@ -35,9 +34,10 @@ class PropertyService {
   }
 
   // 찜 목록 조회
-  Future<List<Property>> getFavoriteProperties() async {
+  Future<List<Property>> fetchFavoriteProperties(int page, int perPage) async {
     final userId = await getUserId();
-    final response = await _apiService.getRequest('/api/favorites/$userId', {});
+    final response = await _apiService.getRequest('/api/favorites/$userId',
+        {'page': page.toString(), 'perPage': perPage.toString()});
     if (response.statusCode == HttpStatus.ok) {
       final decodedResponseBody = utf8.decode(response.bodyBytes);
       final List<dynamic> data = jsonDecode(decodedResponseBody);
