@@ -148,6 +148,26 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
                       ),
                       const SizedBox(height: 30),
                       buildDetailSection(),
+                      const SizedBox(height: 10),
+                      const Text('상세 내용', style: AppStyles.sectionTitle),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: SizedBox(
+                          height: 130,
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            child: SingleChildScrollView(
+                                child: Text(widget.property.description)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
                     ],
                   ),
                 ),
