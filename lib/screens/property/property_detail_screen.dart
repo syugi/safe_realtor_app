@@ -159,13 +159,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: SizedBox(
-                          height: 130,
-                          child: Scrollbar(
-                            thumbVisibility: true,
-                            child: SingleChildScrollView(
-                                child: Text(widget.property.description)),
-                          ),
-                        ),
+                            height: 130,
+                            child: Text(widget.property.description)),
                       ),
                       const SizedBox(height: 15),
                     ],
