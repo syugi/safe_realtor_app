@@ -29,7 +29,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadProperties(); // 초기 데이터 로드
+    Future.microtask(() => _loadProperties()); // 초기 데이터 로드를 마이크로태스크로 처리
     _scrollController.addListener(_scrollListener);
   }
 
@@ -115,13 +115,13 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
               },
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: _properties.length + 1, // 로딩 인디케이터를 위해 +1
+                itemCount: _hasMore
+                    ? _properties.length + 1
+                    : _properties.length, // 로딩 인디케이터를 위해 +1
                 itemBuilder: (context, index) {
                   if (index == _properties.length) {
                     // 로딩 인디케이터 표시
-                    return _hasMore
-                        ? const Center(child: CircularProgressIndicator())
-                        : const Center(child: Text(''));
+                    return const Center(child: CircularProgressIndicator());
                   }
                   return PropertyCard(
                     property: _properties[index],

@@ -25,7 +25,7 @@ class Property {
   final String securityFacilities;
   final String address;
   final List<String> imageUrls;
-  final DateTime registeredAt;
+  final DateTime createdAt;
   bool isFavorite;
 
   Property({
@@ -55,7 +55,7 @@ class Property {
     required this.securityFacilities,
     required this.address,
     required this.imageUrls,
-    required this.registeredAt,
+    required this.createdAt,
     required this.isFavorite,
   });
 
@@ -88,7 +88,7 @@ class Property {
       address: json['address'] ?? '',
       imageUrls:
           json['imageUrls'] != null ? List<String>.from(json['imageUrls']) : [],
-      registeredAt: DateTime.parse(json['registeredAt']),
+      createdAt: DateTime.parse(json['createdAt']),
       isFavorite: json['isFavorite'] ?? false,
     );
   }

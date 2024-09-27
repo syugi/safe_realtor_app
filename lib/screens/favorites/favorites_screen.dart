@@ -28,7 +28,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadFavoriteProperties();
+    Future.microtask(() => _loadFavoriteProperties());
     _scrollController.addListener(_scrollListener);
   }
 
@@ -124,8 +124,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     )
                   : ListView.builder(
                       controller: _scrollController,
-                      itemCount:
-                          _favoriteProperties.length + 1, // 로딩 인디케이터를 위해 +1
+                      itemCount: _hasMore
+                          ? _favoriteProperties.length + 1
+                          : _favoriteProperties.length,
                       itemBuilder: (context, index) {
                         if (index == _favoriteProperties.length) {
                           // 로딩 인디케이터 표시
