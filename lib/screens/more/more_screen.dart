@@ -54,17 +54,17 @@ class MoreScreen extends StatelessWidget {
             },
           ),
 
-          // 설정 메뉴
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('설정'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
+          // // 설정 메뉴
+          // ListTile(
+          //   leading: const Icon(Icons.settings),
+          //   title: const Text('설정'),
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          //     );
+          //   },
+          // ),
 
           // 로그아웃 메뉴
           ListTile(
