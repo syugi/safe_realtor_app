@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_realtor_app/screens/home.dart';
+import 'package:safe_realtor_app/constants/role_constants.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -13,14 +14,58 @@ class MoreScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          // 앱 정보 메뉴
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('앱 정보'),
-            onTap: () {
-              _showAppInfo(context);
+          // 계정 정보 메뉴
+          FutureBuilder<Map<String, String>>(
+            future: _getAccountInfo(), // 계정 정보를 가져오는 비동기 함수 호출
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const ListTile(
+                  leading: Icon(Icons.account_circle),
+                  title: Text('계정 정보'),
+                  subtitle: Text('로딩 중...'),
+                );
+              } else if (snapshot.hasError || !snapshot.hasData) {
+                return const ListTile(
+                  leading: Icon(Icons.account_circle),
+                  title: Text('계정 정보'),
+                  subtitle: Text('계정 정보를 불러올 수 없습니다.'),
+                );
+              } else {
+                // 계정 정보가 있을 경우 표시
+                final data = snapshot.data!;
+                final roleDescription =
+                    UserRoles.getRoleDescription(data['role']!);
+
+                return ListTile(
+                  leading: const Icon(Icons.account_circle),
+                  title: const Text('계정 정보'),
+                  subtitle: Text(
+                    'ID: ${data['userId']} ${roleDescription.isNotEmpty ? '($roleDescription)' : ''}',
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AccountScreen()),
+                    );
+                  },
+                );
+              }
             },
           ),
+
+          // 설정 메뉴
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('설정'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+
           // 로그아웃 메뉴
           ListTile(
             leading: const Icon(Icons.logout),
@@ -29,33 +74,27 @@ class MoreScreen extends StatelessWidget {
               _logout(context);
             },
           ),
-          // 설정 메뉴
+
+          // 앱 정보 메뉴 (버전 정보 바로 표시)
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('설정'),
+            leading: const Icon(Icons.info_outline),
+            title: const Text('앱 정보'),
+            subtitle: const Text('버전 1.0.0'), // 여기서 버전 정보를 바로 표시
             onTap: () {
-              // 설정 페이지로 이동
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-          // 계정 정보 메뉴
-          ListTile(
-            leading: const Icon(Icons.account_circle),
-            title: const Text('계정 정보'),
-            onTap: () {
-              // 계정 정보 페이지로 이동
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AccountScreen()),
-              );
+              _showAppInfo(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  // 사용자 ID와 역할(중개사 또는 관리자)을 가져오는 함수
+  Future<Map<String, String>> _getAccountInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getString('userId') ?? '알 수 없음';
+    String role = prefs.getString('role') ?? 'ROLE_USER'; // 기본값을 ROLE_USER로 설정
+    return {'userId': userId, 'role': role};
   }
 
   // 앱 정보 다이얼로그 표시 함수
@@ -79,9 +118,8 @@ class MoreScreen extends StatelessWidget {
     );
   }
 
-// 로그아웃 처리 함수
+  // 로그아웃 처리 함수
   Future<void> _logout(BuildContext context) async {
-    // 로그아웃 확인 다이얼로그
     showDialog(
       context: context,
       builder: (BuildContext context) {
