@@ -31,16 +31,16 @@ class _LoginScreenState extends State<LoginScreen> {
       // JSON 응답에서 role 값을 추출
       final decodedResponseBody = utf8.decode(response.bodyBytes);
       final responseBody = jsonDecode(decodedResponseBody);
-      final userId = responseBody['userId']; // 로그인용 문자열 ID
-      final userDbId = responseBody['id']; // DB의 숫자형 PK (userDbId로 명명)
+      final userId = responseBody['userId'];
       final role = responseBody['role'];
-      final phoneNumber = responseBody['phoneNumber'];
+      final accessToken = responseBody['accessToken'];
+      final refreshToken = responseBody['refreshToken'];
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userId', userId); // 로그인용 userId 저장
-      await prefs.setInt('userDbId', userDbId); // DB PK 저장
-      await prefs.setInt('role', role); // role 저장
-      await prefs.setString('phoneNumber', phoneNumber);
+      await prefs.setString('userId', userId);
+      await prefs.setString('role', role);
+      await prefs.setString('accessToken', accessToken);
+      await prefs.setString('refreshToken', refreshToken);
 
       // role 값을 HomeScreen으로 전달
       Navigator.pushReplacement(

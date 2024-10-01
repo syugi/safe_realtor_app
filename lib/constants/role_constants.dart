@@ -1,5 +1,11 @@
-class UserRoles {
-  static const int admin = 0;
-  static const int realtor = 1; // 중개사
-  static const int user = 2; // 일반 사용자
+enum UserRoles {
+  admin('ROLE_ADMIN'),
+  agent('ROLE_AGENT'),
+  user('ROLE_USER');
+
+  // 속성 정의
+  final String roleName;
+
+  // 생성자 정의
+  const UserRoles(this.roleName);
 }

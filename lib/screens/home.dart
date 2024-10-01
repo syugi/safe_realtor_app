@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with LoginHelper {
   int _selectedIndex = 0;
-  int? _userRole;
+  String? _userRole;
   final List<Widget> _pages = []; // 화면 목록 초기화
 
   @override
@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
 
   // SharedPreferences에서 userId와 role을 불러오는 함수
   Future<void> _loadUserData() async {
-    int userRole = await getUserRole();
+    String userRole = await getUserRole();
 
     setState(() {
       _userRole = userRole;
@@ -105,8 +105,8 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
               ),
               const SizedBox(height: 16),
               // 중개사와 일반 사용자 구분
-              if (_userRole == UserRoles.realtor ||
-                  _userRole == UserRoles.admin)
+              if (_userRole == UserRoles.agent.roleName ||
+                  _userRole == UserRoles.admin.roleName)
                 ElevatedButton(
                   onPressed: () {
                     _handleLoginRequired(() {
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
                   },
                   child: const Text('매물 등록'),
                 )
-              else if (_userRole == UserRoles.user)
+              else if (_userRole == UserRoles.user.roleName)
                 ElevatedButton(
                   onPressed: () {
                     _handleLoginRequired(() {

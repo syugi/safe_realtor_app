@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_realtor_app/screens/auth/login_screen.dart';
+import 'package:safe_realtor_app/utils/user_utils.dart';
 
 mixin LoginHelper<T extends StatefulWidget> on State<T> {
+  //로그인 여부 체크
   Future<bool> isLoggedIn() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey('userId');
+    String? accessToken = await getAccessToken();
+    return accessToken != null && accessToken.isNotEmpty;
   }
 
   // 로그인 모달 창 표시 함수

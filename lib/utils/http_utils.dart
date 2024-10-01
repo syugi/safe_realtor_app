@@ -26,6 +26,19 @@ String extractMessageFromResponse(http.Response response) {
   }
 }
 
+String extractErrorCodeFromResponse(http.Response response) {
+  // 응답 바디를 UTF-8로 디코딩
+  final decodedResponseBody = utf8.decode(response.bodyBytes);
+
+  // JSON 파싱
+  final responseBody = jsonDecode(decodedResponseBody);
+
+  // 메시지 추출
+  final code = responseBody['code'] ?? '';
+
+  return code;
+}
+
 class HttpStatus {
   static const int ok = 200;
   static const int created = 201;
