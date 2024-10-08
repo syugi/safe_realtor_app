@@ -90,8 +90,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
                           ),
                         ],
                       )
-                    : Image.asset(
-                        'assets/images/default_thumbnail.png',
+                    : Image.network(
+                        'https://saferealtor-app-data.s3.ap-northeast-2.amazonaws.com/default_thumbnail.png',
                         width: 150,
                         height: 150,
                         fit: BoxFit.cover,

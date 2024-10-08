@@ -103,19 +103,12 @@ class _PropertyCardState extends State<PropertyCard>
         topLeft: Radius.circular(4.0),
         bottomLeft: Radius.circular(4.0),
       ),
-      child: property.imageUrls.isNotEmpty
-          ? Image.network(
-              property.imageUrls.first,
-              width: 150,
-              height: 150,
-              fit: BoxFit.cover,
-            )
-          : Image.asset(
-              'assets/images/default_thumbnail.png',
-              width: 150,
-              height: 150,
-              fit: BoxFit.cover,
-            ),
+      child: Image.network(
+        property.thumbnailUrl,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }
