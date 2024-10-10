@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_realtor_app/models/Property.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:intl/intl.dart';
 import 'package:safe_realtor_app/services/property_service.dart';
 import 'package:safe_realtor_app/utils/message_utils.dart';
 import 'package:safe_realtor_app/mixins/login_helper.dart';
@@ -208,16 +207,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
         buildRowWithDivider('총 주차 대수', '${widget.property.totalParkingSlots}대'),
         buildRowWithDivider('입주 가능일', widget.property.availableMoveInDate),
         buildRowWithDivider('건축물 용도', widget.property.buildingUse),
-        buildRowWithDivider('사용승인일', formatDate(widget.property.approvalDate)),
-        buildRowWithDivider(
-            '최초등록일', formatDate(widget.property.firstRegistrationDate)),
+        buildRowWithDivider('사용승인일', widget.property.approvalDate),
+        buildRowWithDivider('최초등록일', widget.property.firstRegistrationDate),
         buildRowWithDivider('위치', widget.property.address),
       ],
     );
-  }
-
-  String formatDate(DateTime date) {
-    return DateFormat('yyyy.MM.dd').format(date);
   }
 
   Widget buildRowWithDivider(String label, dynamic value) {

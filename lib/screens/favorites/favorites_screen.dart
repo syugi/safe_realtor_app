@@ -58,15 +58,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     });
 
     try {
-      final newProperties = await _propertyService.fetchFavoriteProperties(
+      final pagingResult = await _propertyService.fetchFavoriteProperties(
         _currentPage,
         _perPage,
       );
 
       setState(() {
-        _favoriteProperties.addAll(newProperties); // 새로운 매물 추가
+        _favoriteProperties.addAll(pagingResult.items); // 새로운 매물 추가
         _currentPage++; // 다음 페이지로 넘김
-        _hasMore = newProperties.length == _perPage; // 다음 페이지에 더 있을지 확인
+        _hasMore = pagingResult.items.length == _perPage; // 다음 페이지에 더 있을지 확인
         _isLoading = false;
       });
     } on SocketException catch (e) {

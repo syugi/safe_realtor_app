@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:safe_realtor_app/models/Property.dart';
 import 'api_service.dart';
-import 'dart:convert';
 import 'package:safe_realtor_app/utils/user_utils.dart';
+import 'package:safe_realtor_app/services/paging_service.dart';
 
 class PropertyService {
   final ApiService _apiService = ApiService();
@@ -17,34 +17,23 @@ class PropertyService {
   }
 
   // 매물 목록 조회
-  Future<List<Property>> fetchProperties(int page, int perPage) async {
-    final userId = await getUserId();
-    final response = await _apiService.getRequest('/api/properties', {
-      'userId': userId,
-      'page': page.toString(),
-      'perPage': perPage.toString()
-    });
-    if (response.statusCode == HttpStatus.ok) {
-      final decodedResponseBody = utf8.decode(response.bodyBytes);
-      final List<dynamic> data = jsonDecode(decodedResponseBody);
-      return data.map((json) => Property.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load properties');
-    }
+  Future<PagingResult<Property>> fetchProperties(int page, int perPage) async {
+    return await fetchPagedData<Property>(
+      '/api/properties/list',
+      {'page': page.toString(), 'perPage': perPage.toString()},
+      (json) => Property.fromJson(json),
+    );
   }
 
   // 찜 목록 조회
-  Future<List<Property>> fetchFavoriteProperties(int page, int perPage) async {
+  Future<PagingResult<Property>> fetchFavoriteProperties(
+      int page, int perPage) async {
     final userId = await getUserId();
-    final response = await _apiService.getRequest('/api/favorites/$userId',
-        {'page': page.toString(), 'perPage': perPage.toString()});
-    if (response.statusCode == HttpStatus.ok) {
-      final decodedResponseBody = utf8.decode(response.bodyBytes);
-      final List<dynamic> data = jsonDecode(decodedResponseBody);
-      return data.map((json) => Property.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load favorites');
-    }
+    return await fetchPagedData<Property>(
+      '/api/favorites/$userId',
+      {'page': page.toString(), 'perPage': perPage.toString()},
+      (json) => Property.fromJson(json), // JSON을 Property로 변환하는 함수
+    );
   }
 
   // 찜 추가

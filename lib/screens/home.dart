@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> with LoginHelper {
           child: Column(
             children: [
               const Text(
-                '안전한 중개사에게 안전한 집구하기!',
+                '보증보험 되는 집 구할땐 "안부"',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

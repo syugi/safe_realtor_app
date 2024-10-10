@@ -59,15 +59,15 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     });
 
     try {
-      final newProperties = await _propertyService.fetchProperties(
+      final pagingResult = await _propertyService.fetchProperties(
         _currentPage,
         _perPage,
       );
 
       setState(() {
-        _properties.addAll(newProperties); // 새로운 매물 추가
+        _properties.addAll(pagingResult.items); // 새로운 매물 추가
         _currentPage++; // 다음 페이지로 넘김
-        _hasMore = newProperties.length == _perPage; // 다음 페이지에 더 있을지 확인
+        _hasMore = pagingResult.items.length == _perPage; // 다음 페이지에 더 있을지 확인
         _isLoading = false;
       });
     } on SocketException catch (e) {

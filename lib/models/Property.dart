@@ -1,3 +1,5 @@
+import 'package:safe_realtor_app/utils/date_utils.dart';
+
 class Property {
   final int id;
   final String propertyNumber;
@@ -19,8 +21,8 @@ class Property {
   final String entranceType;
   final String availableMoveInDate;
   final String buildingUse;
-  final DateTime approvalDate;
-  final DateTime firstRegistrationDate;
+  final String approvalDate;
+  final String firstRegistrationDate;
   final String options;
   final String securityFacilities;
   final String address;
@@ -82,8 +84,8 @@ class Property {
         entranceType: json['entranceType'] ?? '',
         availableMoveInDate: json['availableMoveInDate'] ?? '',
         buildingUse: json['buildingUse'] ?? '',
-        approvalDate: DateTime.parse(json['approvalDate']),
-        firstRegistrationDate: DateTime.parse(json['firstRegistrationDate']),
+        approvalDate: parseDate(json['approvalDate']),
+        firstRegistrationDate: parseDate(json['firstRegistrationDate']),
         options: json['options'] ?? '',
         securityFacilities: json['securityFacilities'] ?? '',
         address: json['address'] ?? '',
