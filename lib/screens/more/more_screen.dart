@@ -22,8 +22,8 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
     if (userId != null) {
       setState(() {
         _isLoggedIn = true;
@@ -31,10 +31,6 @@ class _MoreScreenState extends State<MoreScreen> {
           'userId': userId,
           'role': prefs.getString('role') ?? 'ROLE_USER',
         };
-      });
-    } else {
-      setState(() {
-        _isLoggedIn = false;
       });
     }
   }

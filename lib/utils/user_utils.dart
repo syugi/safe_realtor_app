@@ -23,8 +23,5 @@ Future<bool> isLoggedIn() async {
   String? accessToken = prefs.getString('accessToken');
 
   // userId와 accessToken이 모두 존재하면 로그인 상태로 간주
-  return userId != null &&
-      userId.isNotEmpty &&
-      accessToken != null &&
-      accessToken.isNotEmpty;
+  return (userId?.isNotEmpty ?? false) && (accessToken?.isNotEmpty ?? false);
 }

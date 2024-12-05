@@ -112,8 +112,7 @@ class ApiService {
 
     return {
       'Content-Type': 'application/json; charset=UTF-8',
-      if (accessToken != null)
-        'Authorization': 'Bearer $accessToken', // JWT 토큰 추가
+      'Authorization': 'Bearer $accessToken', // JWT 토큰 추가
     };
   }
 
@@ -123,10 +122,6 @@ class ApiService {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? userId = prefs.getString('userId');
       String? refreshToken = prefs.getString('refreshToken');
-
-      if (refreshToken == null) {
-        throw Exception('No refresh token available');
-      }
 
       // Refresh Token을 사용해 새로운 Access Token 요청
       final response = await postRequest('/api/auth/refreshToken',
